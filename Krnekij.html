@@ -5,26 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A-Frame GLB Model Test</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-
-    <!-- Register the Draco loader component BEFORE the scene -->
-    <script>
-        AFRAME.registerComponent('draco-loader', {
-            init: function () {
-                this.el.setAttribute('gltf-model', {
-                    dracoDecoderPath: 'https://www.gstatic.com/draco/v1/decoders/'
-                });
-            }
-        });
-    </script>
 </head>
 <body>
     <a-scene>
-        <!-- GLTF model with Draco compression (your model's URL) -->
+        <!-- GLTF model with Draco compression (your model's URL) and Draco decoder path defined -->
         <a-entity
             gltf-model="https://zunuk.github.io/testni/GPS_K_in_Vrata.glb"
             scale="1 1 1"
             position="0 1 -5"
-            draco-loader>
+            gltf-model-draco-decoder="https://www.gstatic.com/draco/v1/decoders/">
         </a-entity>
 
         <!-- Basic sky and lighting -->
