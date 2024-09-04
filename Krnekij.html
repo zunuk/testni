@@ -3,16 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame GLB Test</title>
+    <title>A-Frame GLB Model Test</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 </head>
 <body>
     <a-scene>
-        <a-entity 
-            gltf-model="https://raw.githubusercontent.com/zunuk/testni/79087a08e0b77364a52375533c07ce8b2904d691/GPS_K_in_Vrata.glb" 
-            scale="0.1 0.1 0.1"
-            position="0 0 0">
+        <!-- GLTF model is placed in the scene -->
+        <a-entity
+            gltf-model="https://cdn.aframe.io/link-traversal/models/kabeja.glb"
+            scale="1 1 1"
+            position="0 1 -5">
         </a-entity>
+        
+        <!-- Basic sky and lighting -->
+        <a-sky color="#ECECEC"></a-sky>
+        <a-light type="ambient" color="#FFF"></a-light>
     </a-scene>
 </body>
 </html>
