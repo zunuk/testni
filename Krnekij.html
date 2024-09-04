@@ -8,16 +8,33 @@
 </head>
 <body>
     <a-scene>
-        <!-- Replace with your GLB model URL -->
+        <!-- Set the Draco decoder path -->
+        <a-asset-item
+            id="dracoDecoder"
+            src="https://www.gstatic.com/draco/v1/decoders/"></a-asset-item>
+        
+        <!-- GLTF model with Draco compression (your model's URL) -->
         <a-entity
             gltf-model="https://zunuk.github.io/testni/GPS_K_in_Vrata.glb"
             scale="1 1 1"
-            position="0 1 -5">
+            position="0 1 -5"
+            animation-mixer>
         </a-entity>
 
         <!-- Basic sky and lighting -->
         <a-sky color="#ECECEC"></a-sky>
         <a-light type="ambient" color="#FFF"></a-light>
     </a-scene>
+
+    <script>
+        // Tell A-Frame to use Google's Draco decoder
+        AFRAME.registerComponent('draco-loader', {
+            init: function () {
+                this.el.setAttribute('gltf-model', {
+                    dracoDecoderPath: 'https://www.gstatic.com/draco/v1/decoders/'
+                });
+            }
+        });
+    </script>
 </body>
 </html>
