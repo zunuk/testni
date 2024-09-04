@@ -15,17 +15,17 @@
     <!-- AR scene setup -->
     <a-scene
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: false;"
+        arjs="sourceType: webcam; debugUIEnabled: true;"
         vr-mode-ui="enabled: false"
         renderer="logarithmicDepthBuffer: true;"
     >
         <!-- Place your model at the exact GPS location -->
         <a-entity
-            gps-entity-place="latitude: 46.369886; longitude: 15.632041;"
+            gps-entity-place="latitude: 46.369797; longitude: 15.631915;"
             gltf-model="url(https://raw.githubusercontent.com/zunuk/testni/7a41fd6e279312ace8d69043f38ae4d5cf422521/GPS_K_in_Vrata.glb)"
             scale="1 1 1" <!-- Adjust the scale as needed -->
-            rotation="0 90 0" <!-- Adjust rotation if needed -->
-            position="0 5 0" <!-- Adjust altitude manually (Y axis) -->
+            rotation="0 0 0" <!-- Adjust rotation if needed -->
+            position="0 0 0" <!-- Adjust altitude manually (Y axis) -->
         ></a-entity>
 
         <!-- Add a GPS-enabled camera -->
