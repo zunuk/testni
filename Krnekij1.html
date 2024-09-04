@@ -18,13 +18,13 @@
       embedded
     >
       <!-- Camera with GPS functionality -->
-      <a-camera gps-camera="gpsMinDistance: 5; gpsTimeInterval: 1000;" rotation-reader></a-camera>
+      <a-camera gps-camera="gpsMinDistance: 0.5; gpsTimeInterval: 500;" rotation-reader></a-camera>
 
       <!-- Entity that loads the GLB model and places it at the specified coordinates -->
       <a-entity
         gps-entity-place="latitude: 46.369704; longitude: 15.631790;"
         gltf-model="https://raw.githubusercontent.com/zunuk/testni/79087a08e0b77364a52375533c07ce8b2904d691/GPS_K_in_Vrata.glb"
-        scale="10 10 10"
+        scale="1 1 1"
         rotation="0 0 0"
       ></a-entity>
     </a-scene>
