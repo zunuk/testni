@@ -10,13 +10,25 @@
 <body style="margin: 0px; overflow: hidden;">
   <a-scene embedded arjs>
     <a-marker preset="hiro">
+      <!-- Check scale and position if model is not appearing -->
       <a-entity
         position="0 0 0"
-        scale="0.05 0.05 0.05"
+        scale="0.1 0.1 0.1"  <!-- Increased scale to make sure the model is visible -->
         gltf-model="https://raw.githack.com/zunuk/testni/251947a880a601ac739727184856885f1c8d6ba7/untitle66.glb">
       </a-entity>
     </a-marker>
     <a-entity camera></a-entity>
   </a-scene>
+
+  <script>
+    // Debugging to check if the model is loading
+    AFRAME.registerComponent('model-loaded', {
+      init: function () {
+        this.el.addEventListener('model-loaded', () => {
+          console.log('Model loaded successfully');
+        });
+      }
+    });
+  </script>
 </body>
 </html>
