@@ -3,21 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Model with Real-World Coordinates</title>
+    <title>AR Model Viewer</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-        }
-        #enter-ar {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            padding: 10px 20px;
-            background: #fff;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
         }
     </style>
 </head>
@@ -27,35 +17,14 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.125.2/examples/jsm/webxr/ARButton.js"></script>
 
     <script>
-        let scene, camera, renderer, model, currentPosition;
-
-        // Model's real-world coordinates
-        const modelLat = 46.559082;
-        const modelLon = 15.643159;
-        const modelElevation = 328.20; // Elevation in meters
-        const modelHeading = 8.0; // Model rotation (in degrees)
-
-        // Convert degrees to radians
-        function degreesToRadians(deg) {
-            return deg * (Math.PI / 180);
-        }
-
-        // Convert Lat/Lon to AR space (X, Z offsets in meters, Y is elevation)
-        function convertLatLonToAR(currentLat, currentLon, targetLat, targetLon) {
-            const earthRadius = 6371000; // Approximate Earth radius in meters
-            const latDiff = degreesToRadians(targetLat - currentLat);
-            const lonDiff = degreesToRadians(targetLon - currentLon);
-
-            const x = earthRadius * lonDiff * Math.cos(degreesToRadians(currentLat));
-            const z = earthRadius * latDiff;
-            return { x, z };
-        }
+        let scene, camera, renderer, model;
 
         // Initialize Three.js scene
         function init() {
             scene = new THREE.Scene();
 
             camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.xr.enabled = true;
@@ -70,37 +39,14 @@
             const loader = new THREE.GLTFLoader();
             loader.load('https://raw.githubusercontent.com/zunuk/testni/7a41fd6e279312ace8d69043f38ae4d5cf422521/GPS_K_in_Vrata.glb', function (gltf) {
                 model = gltf.scene;
-                model.rotation.y = degreesToRadians(modelHeading); // Apply heading rotation to model
+                model.position.set(0, 0, -3); // Position the model 3 meters in front of the user
                 scene.add(model);
             });
 
-            // Add AR button
             document.body.appendChild(ARButton.createButton(renderer));
 
             // Start rendering loop
             renderer.setAnimationLoop(render);
-
-            // Request user's current position (GPS)
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(position => {
-                    currentPosition = position.coords; // Get current lat, lon, altitude
-                    placeModelInAR();
-                });
-            }
-        }
-
-        // Place model in AR space based on current position
-        function placeModelInAR() {
-            if (!currentPosition || !model) return;
-
-            const { latitude: currentLat, longitude: currentLon, altitude: currentAlt } = currentPosition;
-
-            // Convert the real-world model coordinates to AR space
-            const { x, z } = convertLatLonToAR(currentLat, currentLon, modelLat, modelLon);
-            const y = modelElevation - currentAlt; // Use the elevation difference
-
-            // Set the model's position in AR space (relative to the current location)
-            model.position.set(x, y, z);
         }
 
         // Render function for Three.js scene
