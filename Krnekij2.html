@@ -4,24 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Location-based AR with AR.js</title>
+
+    <!-- A-Frame (for building 3D scenes) -->
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+
+    <!-- AR.js (for GPS-based AR) -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
 <body style="margin: 0px; overflow: hidden;">
+    <!-- AR scene setup -->
     <a-scene
         embedded
         arjs="sourceType: webcam; debugUIEnabled: false;"
         vr-mode-ui="enabled: false"
+        renderer="logarithmicDepthBuffer: true;"
     >
         <!-- Place your model at the exact GPS location -->
         <a-entity
-            gps-entity-place="latitude: 46.369886; longitude: 15.632041; altitude: 305.30" <!-- Coordinates and height -->
+            gps-entity-place="latitude: 46.369886; longitude: 15.632041;"
             gltf-model="url(https://raw.githubusercontent.com/zunuk/testni/7a41fd6e279312ace8d69043f38ae4d5cf422521/GPS_K_in_Vrata.glb)"
-            scale="1 1 1" <!-- Adjust scale if needed -->
+            scale="1 1 1" <!-- Adjust the scale as needed -->
             rotation="0 90 0" <!-- Adjust rotation if needed -->
+            position="0 5 0" <!-- Adjust altitude manually (Y axis) -->
         ></a-entity>
 
-        <!-- GPS-enabled camera -->
+        <!-- Add a GPS-enabled camera -->
         <a-entity camera gps-camera rotation-reader></a-entity>
     </a-scene>
 </body>
