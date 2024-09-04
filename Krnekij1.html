@@ -1,15 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>AR.js A-Frame Location-based</title>
-<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-<script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
-<script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location-based AR with AR.js</title>
+
+    <!-- A-Frame (for building 3D scenes) -->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+
+    <!-- AR.js (for GPS-based AR) -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
-<body>
-<a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-    <a-camera gps-new-camera='gpsMinDistance: 5'></a-camera>
-    <a-entity material='color: red' geometry='primitive: box' gps-new-entity-place="latitude: 46.369797; longitude: 15.631945" scale="10 10 10"></a-entity>
-</a-scene>
+<body style="margin: 0px; overflow: hidden;">
+
+    <!-- AR scene setup -->
+    <a-scene
+        embedded
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        vr-mode-ui="enabled: false"
+        renderer="logarithmicDepthBuffer: true;"
+    >
+        <!-- Debugging object: simple red box placed at a known GPS location (in degrees) -->
+        <a-box
+            gps-entity-place="latitude: 46.369886; longitude: 15.632041;"
+            scale="2 2 2"
+            material="color: red;"
+            position="0 1 0" <!-- Adjust this position to control the height -->
+        ></a-box>
+
+        <!-- Load the 3D model at the specified GPS coordinates (in degrees) -->
+        <a-entity
+            gps-entity-place="latitude: 46.369886; longitude: 15.632041;"
+            gltf-model="url(https://raw.githubusercontent.com/zunuk/testni/7a41fd6e279312ace8d69043f38ae4d5cf422521/GPS_K_in_Vrata.glb)"
+            scale="1 1 1" <!-- Adjust scale if model is too large or too small -->
+            position="0 2 0" <!-- Adjust this Y position for altitude -->
+        ></a-entity>
+
+        <!-- GPS-enabled camera -->
+        <a-entity camera gps-camera rotation-reader></a-entity>
+    </a-scene>
 </body>
 </html>
