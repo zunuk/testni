@@ -1,37 +1,44 @@
-<!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-        <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-        <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-        <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
-    </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR.js GPS AR</title>
 
-    <body style="margin: 0; overflow: hidden;">
-        <a-scene
-            renderer="logarithmicDepthBuffer: true;"
-            embedded
-            loading-screen="enabled: false;"
-            arjs="sourceType: webcam; debugUIEnabled: false;"
-        >
-            <a-assets>
-                <a-asset-item
-                    id="animated-asset"
-                    src="https://raw.githubusercontent.com/zunuk/testni/7a41fd6e279312ace8d69043f38ae4d5cf422521/GPS_K_in_Vrata.glb"
-                ></a-asset-item>
-            </a-assets>
+    <!-- Include A-Frame and AR.js -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 
-                <a-entity
-                    look-at="[gps-camera]"
-                    animation-mixer="loop: repeat"
-                    gltf-model="#animated-asset"
-                    scale="1 1 1"
-                    gps-entity-place="latitude: 46.369886; longitude: 15.632041;"
-                ></a-entity>
+    <!-- Optional: CSS for fullscreen -->
+    <style>
+        body, html { margin: 0; overflow: hidden; height: 100%; }
+    </style>
+</head>
+<body>
+    <!-- A-Frame AR.js scene -->
+    <a-scene
+        vr-mode-ui="enabled: false"
+        renderer="logarithmicDepthBuffer: true"
+        arjs="sourceType: webcam; debugUIEnabled: false;">
 
-            <a-camera gps-camera rotation-reader></a-camera>
-        </a-scene>
-    </body>
+        <!-- Camera with GPS position tracking -->
+        <a-camera gps-camera rotation-reader></a-camera>
+
+        <!-- 3D model at specific GPS coordinates -->
+        <a-entity
+            gltf-model="https://raw.githubusercontent.com/zunuk/testni/7a41fd6e279312ace8d69043f38ae4d5cf422521/GPS_K_in_Vrata.glb"
+            gps-entity-place="latitude: 46.369886; longitude: 15.632041;"
+            scale="1 1 1"
+            rotation="0 0 0">
+        </a-entity>
+
+    </a-scene>
+
+    <!-- AR.js requires user permission for accessing location and camera -->
+    <script>
+        window.onload = function() {
+            alert("Allow camera and GPS to see the model in AR.");
+        }
+    </script>
+</body>
 </html>
