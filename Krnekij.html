@@ -5,29 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A-Frame GLB Model Test</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-</head>
-<body>
-    <a-scene>
-        <!-- Set the Draco decoder path -->
-        <a-asset-item
-            id="dracoDecoder"
-            src="https://www.gstatic.com/draco/v1/decoders/"></a-asset-item>
-        
-        <!-- GLTF model with Draco compression (your model's URL) -->
-        <a-entity
-            gltf-model="https://zunuk.github.io/testni/GPS_K_in_Vrata.glb"
-            scale="1 1 1"
-            position="0 1 -5"
-            animation-mixer>
-        </a-entity>
 
-        <!-- Basic sky and lighting -->
-        <a-sky color="#ECECEC"></a-sky>
-        <a-light type="ambient" color="#FFF"></a-light>
-    </a-scene>
-
+    <!-- Register the Draco loader component BEFORE the scene -->
     <script>
-        // Tell A-Frame to use Google's Draco decoder
         AFRAME.registerComponent('draco-loader', {
             init: function () {
                 this.el.setAttribute('gltf-model', {
@@ -36,5 +16,20 @@
             }
         });
     </script>
+</head>
+<body>
+    <a-scene>
+        <!-- GLTF model with Draco compression (your model's URL) -->
+        <a-entity
+            gltf-model="https://zunuk.github.io/testni/GPS_K_in_Vrata.glb"
+            scale="1 1 1"
+            position="0 1 -5"
+            draco-loader>
+        </a-entity>
+
+        <!-- Basic sky and lighting -->
+        <a-sky color="#ECECEC"></a-sky>
+        <a-light type="ambient" color="#FFF"></a-light>
+    </a-scene>
 </body>
 </html>
