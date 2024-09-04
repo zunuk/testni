@@ -18,15 +18,24 @@
       embedded
     >
       <!-- Camera with GPS functionality -->
-      <a-camera gps-camera="gpsMinDistance: 0.5; gpsTimeInterval: 500;" rotation-reader></a-camera>
+      <a-camera gps-camera="gpsMinDistance: 5; gpsTimeInterval: 1000;" rotation-reader></a-camera>
 
-      <!-- Entity that loads the GLB model and places it at the specified coordinates -->
+      <!-- Test with Red Box (simple entity for debugging) -->
       <a-entity
-        gps-entity-place="latitude: 46.369704; longitude: 15.631790;"
-        gltf-model="https://raw.githubusercontent.com/zunuk/testni/79087a08e0b77364a52375533c07ce8b2904d691/GPS_K_in_Vrata.glb"
+        gps-entity-place="latitude: 46.369704; longitude: 15.631790"
+        geometry="primitive: box"
+        material="color: red"
         scale="1 1 1"
+      ></a-entity>
+
+      <!-- Original GLB Model (replace box after debugging) -->
+      <a-entity
+        gps-entity-place="latitude: 46.369704; longitude: 15.631790"
+        gltf-model="https://raw.githubusercontent.com/zunuk/testni/79087a08e0b77364a52375533c07ce8b2904d691/GPS_K_in_Vrata.glb"
+        scale="0.1 0.1 0.1"
         rotation="0 0 0"
       ></a-entity>
+
     </a-scene>
 
     <script>
