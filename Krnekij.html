@@ -3,20 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame GLB Model Test</title>
+    <title>AR.js A-Frame Location-based Model</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    </style>
 </head>
 <body>
-    <a-scene>
+    <a-scene
+        vr-mode-ui="enabled: false"
+        arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+        renderer="logarithmicDepthBuffer: true; antialias: true;"
+        embedded
+    >
+        <!-- Camera with GPS functionality -->
+        <a-camera gps-camera="gpsMinDistance: 5;" rotation-reader></a-camera>
+
+        <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
             gltf-model="https://zunuk.github.io/testni/cunka.glb"
+            gps-entity-place="latitude: 46.369704; longitude: 15.631790;"
             scale="1 1 1"
-            position="0 1 -5"
+            rotation="0 0 0">
         </a-entity>
-
-        <!-- Basic sky and lighting -->
-        <a-sky color="#ECECEC"></a-sky>
-        <a-light type="ambient" color="#FFF"></a-light>
     </a-scene>
+
+    <script>
+        window.onload = function() {
+            alert("Please allow camera and GPS access for the AR experience.");
+        };
+    </script>
 </body>
 </html>
