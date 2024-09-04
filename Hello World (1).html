@@ -4,25 +4,23 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
-    <meta name="description" content="Cesium AR Demo">
-    <title>Cesium AR Demo</title>
-    
+    <meta name="description" content="Cesium Demo">
+    <title>Cesium Demo</title>
+
     <!-- Include Cesium via CDN -->
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Cesium.js"></script>
     <link href="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
 
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
+            height: 100%;
             overflow: hidden;
         }
         #cesiumContainer {
             width: 100vw;
             height: 100vh;
-            margin: 0;
-            padding: 0;
-            display: block;
         }
         #coordinateDisplay {
             position: absolute;
@@ -60,7 +58,8 @@
 </div>
 
 <script>
-    window.startup = async function () {
+    window.startup = function () {
+        // Initialize the Cesium Viewer
         const viewer = new Cesium.Viewer("cesiumContainer", {
             timeline: false,
             animation: false,
@@ -70,15 +69,17 @@
         const scene = viewer.scene;
         scene.globe.depthTestAgainstTerrain = true;
 
+        // Load the world terrain (correct function)
         let worldTerrain;
         try {
-            worldTerrain = await Cesium.createWorldTerrainAsync();
+            worldTerrain = Cesium.createWorldTerrain();
             viewer.scene.terrainProvider = worldTerrain;
             scene.globe.show = false;
         } catch (error) {
-            window.alert(`There was an error creating world terrain. ${error}`);
+            window.alert(`There was an error creating world terrain: ${error}`);
         }
 
+        // Load the 3D Tileset
         let worldTileset;
         try {
             worldTileset = await Cesium.createGooglePhotorealistic3DTileset();
