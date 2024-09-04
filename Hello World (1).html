@@ -1,32 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
-    />
-    <meta name="description" content="Use Viewer to start building new applications or easily embed Cesium into existing applications.">
-    <meta name="cesium-sandcastle-labels" content="Beginner, Showcases">
-    <title>Cesium Demo</title>
-    <script type="text/javascript" src="../Sandcastle-header.js"></script>
-    <script src="../CesiumUnminified/Cesium.js"></script>
-    <script>window.CESIUM_BASE_URL = "../CesiumUnminified/";</script>
-  </head>
-  <body
-    class="sandcastle-loading"
-    data-sandcastle-bucket="bucket-requirejs.html"
-  >
-<style>
-    @import url(../templates/bucket.css);
-</style>
-<div id="cesiumContainer" class="fullSize"></div>
-<div id="loadingOverlay"><h1>Loading...</h1></div>
-<div id="toolbar"></div>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta name="description" content="Cesium AR Demo">
+    <title>Cesium AR Demo</title>
+    
+    <!-- Include Cesium via CDN -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #cesiumContainer {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: block;
+        }
+        #coordinateDisplay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: white;
+            padding: 10px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div id="cesiumContainer"></div>
 
 <!-- Display for the coordinates -->
-<div id="coordinateDisplay" style="position: absolute; top: 10px; left: 10px; background-color: white; padding: 10px; z-index: 1;">
+<div id="coordinateDisplay">
     <h3>Coordinates</h3>
     <label>Latitude: <span id="latitudeDisplay">-</span></label><br>
     <label>Longitude: <span id="longitudeDisplay">-</span></label><br>
@@ -45,204 +58,161 @@
     <button id="increaseLongitude">Increase Longitude (+0.1 m)</button>
     <button id="decreaseLongitude">Decrease Longitude (-0.1 m)</button>
 </div>
-<script id="cesium_sandcastle_script">
-window.startup = async function (Cesium) {
-    'use strict';
-//Sandcastle_Begin
-const viewer = new Cesium.Viewer("cesiumContainer", {
-    timeline: false,
-    animation: false,
-    baseLayerPicker: false,
-});
 
-const scene = viewer.scene;
-scene.globe.depthTestAgainstTerrain = true;
+<script>
+    window.startup = async function () {
+        const viewer = new Cesium.Viewer("cesiumContainer", {
+            timeline: false,
+            animation: false,
+            baseLayerPicker: false,
+        });
 
-let worldTerrain;
-try {
-    worldTerrain = await Cesium.createWorldTerrainAsync();
-    viewer.scene.terrainProvider = worldTerrain;
-    scene.globe.show = false;
-} catch (error) {
-    window.alert(`There was an error creating world terrain. ${error}`);
-}
+        const scene = viewer.scene;
+        scene.globe.depthTestAgainstTerrain = true;
 
-let worldTileset;
-try {
-    worldTileset = await Cesium.createGooglePhotorealistic3DTileset();
-    viewer.scene.primitives.add(worldTileset);
-} catch (error) {
-    console.log(`Error loading Photorealistic 3D Tiles tileset. ${error}`);
-}
-
-Sandcastle.addToolbarMenu([
-    {
-        text: "3D Tiles",
-        onselect: () => {
+        let worldTerrain;
+        try {
+            worldTerrain = await Cesium.createWorldTerrainAsync();
+            viewer.scene.terrainProvider = worldTerrain;
             scene.globe.show = false;
-            worldTileset.show = true;
-        },
-    },
-    {
-        text: "Terrain",
-        onselect: () => {
-            scene.globe.show = true;
-            worldTileset.show = false;
-        },
-    },
-]);
+        } catch (error) {
+            window.alert(`There was an error creating world terrain. ${error}`);
+        }
 
-// Initial position and parameters for the model
-let latitude = 46.559079;
-let longitude = 15.643155;
-let elevation = 329.30; // Set elevation to 330 meters
-let heading = 8.00; // Initial rotation (heading) in degrees
+        let worldTileset;
+        try {
+            worldTileset = await Cesium.createGooglePhotorealistic3DTileset();
+            viewer.scene.primitives.add(worldTileset);
+        } catch (error) {
+            console.log(`Error loading Photorealistic 3D Tiles tileset. ${error}`);
+        }
 
-// Approximate meters-to-degrees conversion factors
-const meterToLatitudeDegree = 1 / 111320; // 1 meter ≈ 1 / 111320 degrees for latitude
-function meterToLongitudeDegree(latitude) {
-    return 1 / (111320 * Math.cos(Cesium.Math.toRadians(latitude))); // Adjust based on current latitude
-}
+        // Initial position and parameters for the model
+        let latitude = 46.559079;
+        let longitude = 15.643155;
+        let elevation = 329.30; // Set elevation to 330 meters
+        let heading = 8.00; // Initial rotation (heading) in degrees
 
-// Display coordinates in HTML
-function updateCoordinateDisplay() {
-    document.getElementById('latitudeDisplay').innerText = latitude.toFixed(6);
-    document.getElementById('longitudeDisplay').innerText = longitude.toFixed(6);
-    document.getElementById('elevationDisplay').innerText = elevation.toFixed(2);
-    document.getElementById('headingDisplay').innerText = heading.toFixed(2);
-}
+        // Approximate meters-to-degrees conversion factors
+        const meterToLatitudeDegree = 1 / 111320;
+        function meterToLongitudeDegree(latitude) {
+            return 1 / (111320 * Math.cos(Cesium.Math.toRadians(latitude)));
+        }
 
-// Create the draggable model entity
-let modelEntity = viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation),
-    model: {
-        uri: "https://raw.githubusercontent.com/zunuk/testni/7a41fd6e279312ace8d69043f38ae4d5cf422521/GPS_K_in_Vrata.glb",
-        heightReference: Cesium.HeightReference.NONE,
-        minimumPixelSize: 128,
-        maximumScale: 0.97,
-    },
-    orientation: Cesium.Transforms.headingPitchRollQuaternion(
-        Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation),
-        new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), 0, 0)
-    ),
-});
+        // Display coordinates in HTML
+        function updateCoordinateDisplay() {
+            document.getElementById('latitudeDisplay').innerText = latitude.toFixed(6);
+            document.getElementById('longitudeDisplay').innerText = longitude.toFixed(6);
+            document.getElementById('elevationDisplay').innerText = elevation.toFixed(2);
+            document.getElementById('headingDisplay').innerText = heading.toFixed(2);
+        }
 
-viewer.trackedEntity = modelEntity;
+        // Create the draggable model entity
+        let modelEntity = viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation),
+            model: {
+                uri: "https://raw.githubusercontent.com/zunuk/testni/7a41fd6e279312ace8d69043f38ae4d5cf422521/GPS_K_in_Vrata.glb",
+                heightReference: Cesium.HeightReference.NONE,
+                minimumPixelSize: 128,
+                maximumScale: 0.97,
+            },
+            orientation: Cesium.Transforms.headingPitchRollQuaternion(
+                Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation),
+                new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), 0, 0)
+            ),
+        });
 
-// Set the default camera view to a much higher altitude for a wider view
-viewer.camera.setView({
-    destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5000), // Set camera altitude to 5000 meters
-    orientation: {
-        heading: 0.0,
-        pitch: Cesium.Math.toRadians(-90.0), // Top-down view
-        roll: 0.0,
-    },
-});
+        viewer.trackedEntity = modelEntity;
 
-updateCoordinateDisplay(); // Update initially
+        // Set the default camera view to a much higher altitude for a wider view
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5000),
+            orientation: {
+                heading: 0.0,
+                pitch: Cesium.Math.toRadians(-90.0), // Top-down view
+                roll: 0.0,
+            },
+        });
 
-// ScreenSpaceEventHandler for dragging the model
-const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-let isDragging = false;
-let pickedEntity = null;
+        updateCoordinateDisplay();
 
-// Slow down the movement by scaling down mouse movement
-const movementScale = 0.00001; // Smaller value for slower movement
+        // ScreenSpaceEventHandler for dragging the model
+        const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+        let isDragging = false;
+        let pickedEntity = null;
 
-// On left mouse button down, pick the model
-handler.setInputAction((click) => {
-    const pickedObject = scene.pick(click.position);
-    if (Cesium.defined(pickedObject) && pickedObject.id === modelEntity) {
-        isDragging = true;
-        pickedEntity = pickedObject.id;
-    }
-}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+        const movementScale = 0.00001;
 
-// On mouse move, if dragging, update the model's position (only latitude and longitude)
-handler.setInputAction((movement) => {
-    if (isDragging && Cesium.defined(pickedEntity)) {
-        // Calculate the mouse movement difference and scale it down
-        const deltaLongitude = movement.endPosition.x - movement.startPosition.x;
-        const deltaLatitude = movement.endPosition.y - movement.startPosition.y;
+        handler.setInputAction((click) => {
+            const pickedObject = scene.pick(click.position);
+            if (Cesium.defined(pickedObject) && pickedObject.id === modelEntity) {
+                isDragging = true;
+                pickedEntity = pickedObject.id;
+            }
+        }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
-        // Update latitude and longitude based on the mouse movement
-        longitude += deltaLongitude * movementScale;
-        latitude -= deltaLatitude * movementScale; // Negative to keep correct movement direction
+        handler.setInputAction((movement) => {
+            if (isDragging && Cesium.defined(pickedEntity)) {
+                const deltaLongitude = movement.endPosition.x - movement.startPosition.x;
+                const deltaLatitude = movement.endPosition.y - movement.startPosition.y;
 
-        // Update the model's position, keeping the elevation constant
-        const newPosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation);
-        pickedEntity.position.setValue(newPosition);
+                longitude += deltaLongitude * movementScale;
+                latitude -= deltaLatitude * movementScale;
 
-        updateCoordinateDisplay(); // Update the displayed coordinates
-    }
-}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+                const newPosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation);
+                pickedEntity.position.setValue(newPosition);
 
-// On left mouse button up, stop dragging
-handler.setInputAction(() => {
-    isDragging = false;
-    pickedEntity = null;
-}, Cesium.ScreenSpaceEventType.LEFT_UP);
+                updateCoordinateDisplay();
+            }
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-// Functions to rotate the model
-function rotateModel(degreeChange) {
-    heading += degreeChange; // Adjust heading (in degrees)
-    const orientation = Cesium.Transforms.headingPitchRollQuaternion(
-        Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation),
-        new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), 0, 0)
-    );
-    modelEntity.orientation = orientation; // Apply the new rotation
-    updateCoordinateDisplay(); // Update the heading in the display
-}
+        handler.setInputAction(() => {
+            isDragging = false;
+            pickedEntity = null;
+        }, Cesium.ScreenSpaceEventType.LEFT_UP);
 
-// Functions to change the elevation
-function changeElevation(amount) {
-    elevation += amount;
-    const newPosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation);
-    modelEntity.position.setValue(newPosition);
-    updateCoordinateDisplay(); // Update the elevation in the display
-}
+        document.getElementById('rotateLeft').addEventListener('click', () => rotateModel(-1));
+        document.getElementById('rotateRight').addEventListener('click', () => rotateModel(1));
+        document.getElementById('increaseElevation').addEventListener('click', () => changeElevation(0.1));
+        document.getElementById('decreaseElevation').addEventListener('click', () => changeElevation(-0.1));
+        document.getElementById('increaseLatitude').addEventListener('click', () => changeLatitude(0.1));
+        document.getElementById('decreaseLatitude').addEventListener('click', () => changeLatitude(-0.1));
+        document.getElementById('increaseLongitude').addEventListener('click', () => changeLongitude(0.1));
+        document.getElementById('decreaseLongitude').addEventListener('click', () => changeLongitude(-0.1));
 
-// Functions to change the latitude
-function changeLatitude(amount) {
-    latitude += amount * meterToLatitudeDegree; // Convert 0.1 meters to degrees
-    const newPosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation);
-    modelEntity.position.setValue(newPosition);
-    updateCoordinateDisplay(); // Update the latitude in the display
-}
+        function rotateModel(degreeChange) {
+            heading += degreeChange;
+            const orientation = Cesium.Transforms.headingPitchRollQuaternion(
+                Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation),
+                new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading), 0, 0)
+            );
+            modelEntity.orientation = orientation;
+            updateCoordinateDisplay();
+        }
 
-// Functions to change the longitude
-function changeLongitude(amount) {
-    longitude += amount * meterToLongitudeDegree(latitude); // Convert 0.1 meters to degrees based on current latitude
-    const newPosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation);
-    modelEntity.position.setValue(newPosition);
-    updateCoordinateDisplay(); // Update the longitude in the display
-}
+        function changeElevation(amount) {
+            elevation += amount;
+            const newPosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation);
+            modelEntity.position.setValue(newPosition);
+            updateCoordinateDisplay();
+        }
 
-// Event listeners for rotation buttons
-document.getElementById('rotateLeft').addEventListener('click', () => rotateModel(-1)); // Rotate 1 degree left
-document.getElementById('rotateRight').addEventListener('click', () => rotateModel(1));  // Rotate 1 degree right
+        function changeLatitude(amount) {
+            latitude += amount * meterToLatitudeDegree;
+            const newPosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation);
+            modelEntity.position.setValue(newPosition);
+            updateCoordinateDisplay();
+        }
 
-// Event listeners for elevation buttons
-document.getElementById('increaseElevation').addEventListener('click', () => changeElevation(0.1)); // Increase by 0.1 m
-document.getElementById('decreaseElevation').addEventListener('click', () => changeElevation(-0.1)); // Decrease by 0.1 m
+        function changeLongitude(amount) {
+            longitude += amount * meterToLongitudeDegree(latitude);
+            const newPosition = Cesium.Cartesian3.fromDegrees(longitude, latitude, elevation);
+            modelEntity.position.setValue(newPosition);
+            updateCoordinateDisplay();
+        }
+    };
 
-// Event listeners for latitude buttons
-document.getElementById('increaseLatitude').addEventListener('click', () => changeLatitude(0.1)); // Increase by 0.1 m
-document.getElementById('decreaseLatitude').addEventListener('click', () => changeLatitude(-0.1)); // Decrease by 0.1 m
-
-// Event listeners for longitude buttons
-document.getElementById('increaseLongitude').addEventListener('click', () => changeLongitude(0.1)); // Increase by 0.1 m
-document.getElementById('decreaseLongitude').addEventListener('click', () => changeLongitude(-0.1)); // Decrease by 0.1 m
-//Sandcastle_End
-    Sandcastle.finishedLoading();
-};
-if (typeof Cesium !== 'undefined') {
-    window.startupCalled = true;
-    window.startup(Cesium).catch((error) => {
-      "use strict";
-      console.error(error);
-    });
-}
+    window.startup().catch(error => console.error(error));
 </script>
 </body>
 </html>
