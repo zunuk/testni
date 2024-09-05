@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A-Frame AR.js Model at GPS Location</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
@@ -71,13 +71,13 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 0.5;"></a-camera>
 
-        <!-- GLTF model placed at GPS coordinates -->
+        <!-- GLTF model placed at initial coordinates -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-new-entity-place
+            gps-new-entity-place="latitude: 46.559082; longitude: 15.643159;"
             rotation="0 8 0"
             scale="1 1 1"
         ></a-entity>
@@ -135,13 +135,13 @@
             <button onclick="updateModelCoordinates()">Set Coordinates</button>
             <h3>Current Device Coordinates</h3>
             <p id="device-coordinates">Latitude: , Longitude: </p>
-            <p id="model-coordinates">Latitude: , Longitude: </p>
+            <p id="model-coordinates">Latitude: 46.559082, Longitude: 15.643159</p>
         </div>
     </div>
 
     <script>
-        let latitude = null;
-        let longitude = null;
+        let latitude = 46.559082;
+        let longitude = 15.643159;
         let deviceLatitude = null;
         let deviceLongitude = null;
         let rotation = 8; // Initial rotation (heading)
@@ -224,6 +224,9 @@
             const content = document.getElementById('input-coordinates-content');
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
+
+        // Set initial model coordinates display
+        modelCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
 
         // Set input fields to current GPS coordinates on load
         window.onload = function () {
