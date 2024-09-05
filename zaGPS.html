@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js Model with Enhanced Lighting and Controls</title>
+    <title>A-Frame AR.js Model with GPS and Debugging</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -122,6 +122,7 @@
 
         // Function to update model's position
         function updatePosition() {
+            console.log(`Updating position: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
             modelEntity.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
             modelEntity.setAttribute('position', `0 ${altitude} 0`);
         }
@@ -170,6 +171,7 @@
         function useSpecifiedCoordinates() {
             latitude = 46.559082;
             longitude = 15.643159;
+            console.log("Using specified coordinates");
             updatePosition();
         }
 
@@ -178,8 +180,10 @@
             navigator.geolocation.getCurrentPosition((position) => {
                 latitude = position.coords.latitude;
                 longitude = position.coords.longitude;
+                console.log("Using current GPS coordinates: ", latitude, longitude);  // Log the fetched coordinates
                 updatePosition();
             }, (error) => {
+                console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
             });
         }
