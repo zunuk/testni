@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js Model Fixed in Location</title>
+    <title>A-Frame AR.js Model Fixed to GPS</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -73,13 +73,13 @@
         <!-- GPS camera with rotation tracking -->
         <a-camera gps-camera="gpsMinDistance: 5;" rotation-reader></a-camera>
 
-        <!-- GLTF model placed at fixed GPS coordinates -->
+        <!-- GLTF model placed at fixed GPS coordinates without scaling -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             gps-entity-place="latitude: 46.559165; longitude: 15.640116;"
-            scale="1 1 1"
             rotation="0 8 0"
+            height="1.6"  <!-- Adjust the elevation if necessary -->
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -117,6 +117,12 @@
         <button onclick="changeScale(-0.1)">Scale -</button>
     </div>
 
+    <!-- Separate GPS Location Buttons -->
+    <div class="location-controls">
+        <button onclick="useSpecifiedCoordinates()">Specified Coordinates</button>
+        <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
+    </div>
+
     <!-- Input window for latitude and longitude, with minimization -->
     <div class="input-controls">
         <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
@@ -133,8 +139,13 @@
     </div>
 
     <script>
-        let latitude = 46.559165;
-        let longitude = 15.640116;
+        const defaultCoordinates = { latitude: 46.559165, longitude: 15.640116 };
+        const alternateCoordinates = { latitude: 46.559082, longitude: 15.643159 };
+
+        let latitude = defaultCoordinates.latitude;
+        let longitude = defaultCoordinates.longitude;
+        let rotation = 8; // Initial rotation (heading)
+        let scale = 1;    // Original size scale (no scaling for precision)
 
         const modelEntity = document.querySelector('#model');
         const latitudeInput = document.getElementById('latitude-input');
@@ -142,36 +153,17 @@
         const currentCoordinatesDisplay = document.getElementById('current-coordinates');
 
         function updatePosition() {
-            console.log(`Updating position: Latitude=${latitude}, Longitude=${longitude}`);
             modelEntity.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}`);
         }
 
-        function changeLatitude(step) {
-            latitude += step / 111320;
-            updatePosition();
+        function updateRotation() {
+            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
         }
 
-        function changeLongitude(step) {
-            longitude += step / (111320 * Math.cos(latitude * (Math.PI / 180)));
-            updatePosition();
-        }
-
-        function toggleInputWindow() {
-            const content = document.getElementById('input-coordinates-content');
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-            } else {
-                content.style.display = 'none';
-            }
-        }
-
-        window.onload = function () {
-            useCurrentCoordinates();
-        };
-
-        function updateModelCoordinates() {
-            latitude = parseFloat(latitudeInput.value);
-            longitude = parseFloat(longitudeInput.value);
+        function useSpecifiedCoordinates() {
+            latitude = alternateCoordinates.latitude;
+            longitude = alternateCoordinates.longitude;
             updatePosition();
         }
 
@@ -188,6 +180,22 @@
                 alert("Error accessing current location: " + error.message);
             });
         }
+
+        function updateModelCoordinates() {
+            latitude = parseFloat(latitudeInput.value);
+            longitude = parseFloat(longitudeInput.value);
+            updatePosition();
+        }
+
+        function toggleInputWindow() {
+            const content = document.getElementById('input-coordinates-content');
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Set input fields to current GPS coordinates on load
+        window.onload = function () {
+            useCurrentCoordinates(); // Fetch current location on load
+        };
     </script>
 </body>
 </html>
