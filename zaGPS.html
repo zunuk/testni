@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js Model Fixed to GPS</title>
+    <title>A-Frame AR.js Model at GPS Location</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -73,13 +73,13 @@
         <!-- New location-based GPS camera -->
         <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
 
-        <!-- GLTF model placed at fixed GPS coordinates without scaling -->
+        <!-- GLTF model placed at GPS coordinates -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             gps-new-entity-place
             rotation="0 8 0"
-            scale="1 1 1"  <!-- Keep the original scale for precision -->
+            scale="1 1 1"
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -127,20 +127,23 @@
     <div class="input-controls">
         <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
         <div id="input-coordinates-content">
-            <h3>Input Coordinates</h3>
+            <h3>Model Coordinates</h3>
             <label for="latitude-input">Latitude:</label>
             <input type="number" id="latitude-input" step="0.000001" />
             <label for="longitude-input">Longitude:</label>
             <input type="number" id="longitude-input" step="0.000001" />
             <button onclick="updateModelCoordinates()">Set Coordinates</button>
-            <h3>Current Coordinates</h3>
-            <p id="current-coordinates"></p>
+            <h3>Current Device Coordinates</h3>
+            <p id="device-coordinates">Latitude: , Longitude: </p>
+            <p id="model-coordinates">Latitude: , Longitude: </p>
         </div>
     </div>
 
     <script>
         let latitude = null;
         let longitude = null;
+        let deviceLatitude = null;
+        let deviceLongitude = null;
         let rotation = 8; // Initial rotation (heading)
         let scale = 1;    // Original size scale (no scaling for precision)
         let altitude = 0;
@@ -148,10 +151,12 @@
         const modelEntity = document.querySelector('#model');
         const latitudeInput = document.getElementById('latitude-input');
         const longitudeInput = document.getElementById('longitude-input');
-        const currentCoordinatesDisplay = document.getElementById('current-coordinates');
+        const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
+        const modelCoordinatesDisplay = document.getElementById('model-coordinates');
 
         function updatePosition() {
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            modelCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
             console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}`);
         }
 
@@ -187,16 +192,20 @@
         function useSpecifiedCoordinates() {
             latitude = 46.559082;
             longitude = 15.643159;
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
             updatePosition();
         }
 
         function useCurrentCoordinates() {
             navigator.geolocation.getCurrentPosition((position) => {
-                latitude = position.coords.latitude;
-                longitude = position.coords.longitude;
+                deviceLatitude = position.coords.latitude;
+                deviceLongitude = position.coords.longitude;
+                latitude = deviceLatitude;
+                longitude = deviceLongitude;
                 latitudeInput.value = latitude;
                 longitudeInput.value = longitude;
-                currentCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+                deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 updatePosition();
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
