@@ -1,47 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AR.js A-Frame Location-based</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Frame GLB Model Test</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
-    <style>
-      body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-    </style>
-  </head>
-  <body>
-    <a-scene
-      vr-mode-ui="enabled: false"
-      arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
-      renderer="logarithmicDepthBuffer: true; antialias: true;"
-      embedded
-    >
-      <!-- Camera with GPS functionality -->
-      <a-camera gps-camera="gpsMinDistance: 5; gpsTimeInterval: 1000;" rotation-reader></a-camera>
+</head>
+<body>
+    <a-scene>
+        <a-entity
+            gltf-model="https://zunuk.github.io/testni/finito1.glb"
+            scale="1 1 1"
+            position="0 0 0"
+        </a-entity>
 
-      <!-- Test with Red Box (simple entity for debugging) -->
-      <a-entity
-        gps-entity-place="latitude: 46.369704; longitude: 15.631790"
-        geometry="primitive: box"
-        material="color: red"
-        scale="1 1 1"
-      ></a-entity>
-
-      <!-- Original GLB Model (replace box after debugging) -->
-      <a-entity
-        gps-entity-place="latitude: 46.369704; longitude: 15.631790"
-        gltf-model="https://raw.githubusercontent.com/zunuk/testni/79087a08e0b77364a52375533c07ce8b2904d691/GPS_K_in_Vrata.glb"
-        scale="0.1 0.1 0.1"
-        rotation="0 0 0"
-      ></a-entity>
-
+        <!-- Basic sky and lighting -->
+        <a-sky color="#ECECEC"></a-sky>
+        <a-light type="ambient" color="#FFF"></a-light>
     </a-scene>
-
-    <script>
-      window.onload = function () {
-        alert("Please allow camera and GPS location for the AR experience.");
-      };
-    </script>
-  </body>
+</body>
 </html>
