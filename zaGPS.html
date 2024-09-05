@@ -63,18 +63,18 @@
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-entity-place="latitude: 46.559082; longitude: 15.643159;"  <!-- Default specified location -->
+            gps-entity-place="latitude: 46.559165; longitude: 15.640116;"  <!-- Default specified location -->
             scale="1 1 1"  <!-- Initial scale set to 1 -->
-            position="0 30 0"  <!-- Adjust the Y position to simulate elevation -->
+            position="0 0 0"  <!-- Adjust the Y position to simulate elevation -->
             rotation="0 8 0"  <!-- Heading adjusted to 8 degrees -->
         ></a-entity>
 
         <!-- Enhanced Lighting Setup -->
         <a-sky color="#ECECEC"></a-sky>
-        <a-light type="ambient" color="#FFF" intensity="0.7"></a-light>
-        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1" position="0 4 0"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.5" position="-2 4 -1" castShadow="true"></a-light>
-        <a-light type="point" color="#FFF" intensity="1" position="2 3 2"></a-light>
+        <a-light type="ambient" color="#FFF" intensity="3.7"></a-light>
+        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="3" position="0 20 0"></a-light>
+        <a-light type="directional" color="#FFF" intensity="3.5" position="-2 4 -1" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="3" position="2 3 2"></a-light>
     </a-scene>
 
     <!-- Control Buttons for Position and Rotation -->
@@ -112,9 +112,9 @@
     </div>
 
     <script>
-        let latitude = 46.559082;
-        let longitude = 15.643159;
-        let altitude = 30;  // Relative Y-position, simulating elevation
+        let latitude = 46.559165;
+        let longitude = 15.640116;
+        let altitude = 0;  // Relative Y-position, simulating elevation
         let rotation = 8;   // Initial rotation (heading)
         let scale = 1;      // Initial scale of the model
 
