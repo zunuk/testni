@@ -24,25 +24,6 @@
             flex-direction: column;
             gap: 10px;
         }
-        .scale-controls {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(255, 255, 255, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            gap: 10px;
-        }
-        .location-controls {
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            background-color: rgba(255, 255, 255, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-        }
         .input-controls {
             position: absolute;
             top: 100px;
@@ -53,9 +34,6 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-        }
-        #input-coordinates-content {
-            display: block;
         }
         button {
             padding: 5px 10px;
@@ -70,14 +48,14 @@
         embedded
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
-        <!-- GPS camera with rotation tracking -->
-        <a-camera gps-camera="gpsMinDistance: 10;" rotation-reader></a-camera>
+        <!-- New location-based GPS camera -->
+        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
 
-        <!-- GLTF model placed at fixed GPS coordinates without scaling -->
+        <!-- GLTF model placed at fixed GPS coordinates using the new gps-new-entity-place component -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-entity-place="latitude: 46.559165; longitude: 15.640116;"
+            gps-new-entity-place="latitude: 46.559082; longitude: 15.643159;"
             rotation="0 8 0"
             scale="1 1 1"  <!-- Keep the original scale for precision -->
         ></a-entity>
@@ -89,115 +67,20 @@
         <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
-    <!-- Control Buttons for Position and Rotation -->
-    <div class="controls">
-        <h3>Move Model</h3>
-        <div>
-            <button onclick="changeLatitude(0.5)">Lat +</button>
-            <button onclick="changeLatitude(-0.5)">Lat -</button>
-        </div>
-        <div>
-            <button onclick="changeLongitude(0.5)">Lon +</button>
-            <button onclick="changeLongitude(-0.5)">Lon -</button>
-        </div>
-        <div>
-            <button onclick="changeAltitude(0.5)">Alt +</button>
-            <button onclick="changeAltitude(-0.5)">Alt -</button>
-        </div>
-        <h3>Rotate Model</h3>
-        <div>
-            <button onclick="changeRotation(0.5)">Rot +</button>
-            <button onclick="changeRotation(-0.5)">Rot -</button>
-        </div>
-    </div>
-
-    <!-- Scale Control Buttons at the Top -->
-    <div class="scale-controls">
-        <button onclick="changeScale(0.1)">Scale +</button>
-        <button onclick="changeScale(-0.1)">Scale -</button>
-    </div>
-
-    <!-- Separate GPS Location Buttons -->
-    <div class="location-controls">
-        <button onclick="useSpecifiedCoordinates()">Specified Coordinates</button>
-        <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
-    </div>
-
     <!-- Input window for latitude and longitude, with minimization -->
     <div class="input-controls">
-        <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
-        <div id="input-coordinates-content">
-            <h3>Input Coordinates</h3>
-            <label for="latitude-input">Latitude:</label>
-            <input type="number" id="latitude-input" step="0.000001" />
-            <label for="longitude-input">Longitude:</label>
-            <input type="number" id="longitude-input" step="0.000001" />
-            <button onclick="updateModelCoordinates()">Set Coordinates</button>
-            <h3>Current Coordinates</h3>
-            <p id="current-coordinates"></p>
-        </div>
+        <h3>Current Coordinates</h3>
+        <p id="current-coordinates">Latitude: 46.559082, Longitude: 15.643159</p>
     </div>
 
     <script>
-        // Centralized default coordinates
-        const defaultCoordinates = { latitude: 46.559165, longitude: 15.640116 };
-        const alternateCoordinates = { latitude: 46.559082, longitude: 15.643159 };
+        // GPS coordinates for the model
+        const latitude = 46.559082;
+        const longitude = 15.643159;
 
-        let latitude = defaultCoordinates.latitude;
-        let longitude = defaultCoordinates.longitude;
-        let rotation = 8; // Initial rotation (heading)
-        let scale = 1;    // Original size scale (no scaling for precision)
-
-        const modelEntity = document.querySelector('#model');
-        const latitudeInput = document.getElementById('latitude-input');
-        const longitudeInput = document.getElementById('longitude-input');
+        // Display the current coordinates (fixed for this example)
         const currentCoordinatesDisplay = document.getElementById('current-coordinates');
-
-        function updatePosition() {
-            modelEntity.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
-            console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}`);
-        }
-
-        function updateRotation() {
-            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
-        }
-
-        function useSpecifiedCoordinates() {
-            latitude = alternateCoordinates.latitude;
-            longitude = alternateCoordinates.longitude;
-            updatePosition();
-        }
-
-        function useCurrentCoordinates() {
-            navigator.geolocation.getCurrentPosition((position) => {
-                latitude = position.coords.latitude;
-                longitude = position.coords.longitude;
-                latitudeInput.value = latitude;
-                longitudeInput.value = longitude;
-                currentCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
-                updatePosition();
-            }, (error) => {
-                console.error("Error accessing current location: " + error.message);
-                alert("Error accessing current location: " + error.message);
-            });
-        }
-
-        function updateModelCoordinates() {
-            latitude = parseFloat(latitudeInput.value);
-            longitude = parseFloat(longitudeInput.value);
-            console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}`);
-            updatePosition();
-        }
-
-        function toggleInputWindow() {
-            const content = document.getElementById('input-coordinates-content');
-            content.style.display = content.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Set input fields to current GPS coordinates on load
-        window.onload = function () {
-            useCurrentCoordinates(); // Fetch current location on load
-        };
+        currentCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
     </script>
 </body>
 </html>
