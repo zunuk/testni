@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js Model with Input Coordinates</title>
+    <title>A-Frame AR.js Model with Input Coordinates and Minimization</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -54,6 +54,9 @@
             flex-direction: column;
             gap: 10px;
         }
+        #input-coordinates-content {
+            display: block;
+        }
         button {
             padding: 5px 10px;
             font-size: 14px;
@@ -74,13 +77,13 @@
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-entity-place="latitude: 46.559165; longitude: 15.640116;"  <!-- Default specified location -->
-            scale="1 1 1"  <!-- Initial scale set to 1 -->
-            position="0 0 0"  <!-- Adjust the Y position to simulate elevation -->
-            rotation="0 8 0"  <!-- Heading adjusted to 8 degrees -->
+            gps-entity-place="latitude: 46.559165; longitude: 15.640116;"
+            scale="1 1 1"
+            position="0 0 0"
+            rotation="0 8 0"
         ></a-entity>
 
-        <!-- Lighting Setup (corrected "color" attribute) -->
+        <!-- Lighting Setup -->
         <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
         <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
         <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
@@ -121,14 +124,19 @@
         <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
     </div>
 
-    <!-- Input window for latitude and longitude -->
+    <!-- Input window for latitude and longitude, with minimization -->
     <div class="input-controls">
-        <h3>Input Coordinates</h3>
-        <label for="latitude-input">Latitude:</label>
-        <input type="number" id="latitude-input" step="0.000001" />
-        <label for="longitude-input">Longitude:</label>
-        <input type="number" id="longitude-input" step="0.000001" />
-        <button onclick="updateModelCoordinates()">Set Coordinates</button>
+        <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
+        <div id="input-coordinates-content">
+            <h3>Input Coordinates</h3>
+            <label for="latitude-input">Latitude:</label>
+            <input type="number" id="latitude-input" step="0.000001" />
+            <label for="longitude-input">Longitude:</label>
+            <input type="number" id="longitude-input" step="0.000001" />
+            <button onclick="updateModelCoordinates()">Set Coordinates</button>
+            <h3>Current Coordinates</h3>
+            <p id="current-coordinates"></p>
+        </div>
     </div>
 
     <script>
@@ -153,6 +161,7 @@
         const modelEntity = document.querySelector('#model');
         const latitudeInput = document.getElementById('latitude-input');
         const longitudeInput = document.getElementById('longitude-input');
+        const currentCoordinatesDisplay = document.getElementById('current-coordinates');
 
         // Function to update model's position
         function updatePosition() {
@@ -218,12 +227,23 @@
                 longitude = position.coords.longitude;
                 latitudeInput.value = latitude;
                 longitudeInput.value = longitude;
-                console.log("Using current GPS coordinates: ", latitude, longitude);  // Log the fetched coordinates
+                currentCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+                console.log("Using current GPS coordinates: ", latitude, longitude);
                 updatePosition();
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
             });
+        }
+
+        // Toggle the input window between minimized and maximized
+        function toggleInputWindow() {
+            const content = document.getElementById('input-coordinates-content');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
         }
 
         // Set input fields to current GPS coordinates on load
