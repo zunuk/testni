@@ -71,7 +71,7 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- GPS camera with rotation tracking -->
-        <a-camera gps-camera="gpsMinDistance: 5;" rotation-reader></a-camera>
+        <a-camera gps-camera="gpsMinDistance: 10;" rotation-reader></a-camera>
 
         <!-- GLTF model placed at fixed GPS coordinates without scaling -->
         <a-entity
@@ -79,7 +79,7 @@
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             gps-entity-place="latitude: 46.559165; longitude: 15.640116;"
             rotation="0 8 0"
-            height="1.6"  <!-- Adjust the elevation if necessary -->
+            scale="1 1 1"  <!-- Keep the original scale for precision -->
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -139,6 +139,7 @@
     </div>
 
     <script>
+        // Centralized default coordinates
         const defaultCoordinates = { latitude: 46.559165, longitude: 15.640116 };
         const alternateCoordinates = { latitude: 46.559082, longitude: 15.643159 };
 
@@ -184,6 +185,7 @@
         function updateModelCoordinates() {
             latitude = parseFloat(latitudeInput.value);
             longitude = parseFloat(longitudeInput.value);
+            console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}`);
             updatePosition();
         }
 
