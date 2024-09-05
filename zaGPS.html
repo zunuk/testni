@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js Model with GPS and Debugging</title>
+    <title>A-Frame AR.js Model with Input Coordinates</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -43,6 +43,17 @@
             padding: 10px;
             border-radius: 5px;
         }
+        .input-controls {
+            position: absolute;
+            top: 100px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
         button {
             padding: 5px 10px;
             font-size: 14px;
@@ -57,9 +68,9 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- GPS camera with rotation tracking -->
-        <a-camera gps-camera="gpsMinDistance: 5;" rotation-reader></a-camera>
+        <a-camera gps-camera="gpsMinDistance: 0.5;" rotation-reader></a-camera>
 
-        <!-- GLTF model placed at current or specified GPS coordinates -->
+        <!-- GLTF model placed at centralized GPS coordinates -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
@@ -110,14 +121,38 @@
         <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
     </div>
 
+    <!-- Input window for latitude and longitude -->
+    <div class="input-controls">
+        <h3>Input Coordinates</h3>
+        <label for="latitude-input">Latitude:</label>
+        <input type="number" id="latitude-input" step="0.000001" />
+        <label for="longitude-input">Longitude:</label>
+        <input type="number" id="longitude-input" step="0.000001" />
+        <button onclick="updateModelCoordinates()">Set Coordinates</button>
+    </div>
+
     <script>
-        let latitude = 46.559165;
-        let longitude = 15.640116;
+        // Centralized default coordinates
+        const defaultCoordinates = {
+            latitude: 46.559165,
+            longitude: 15.640116
+        };
+
+        // Centralized alternate coordinates
+        const alternateCoordinates = {
+            latitude: 46.559082,
+            longitude: 15.643159
+        };
+
+        let latitude = defaultCoordinates.latitude;
+        let longitude = defaultCoordinates.longitude;
         let altitude = 0;  // Relative Y-position, simulating elevation
         let rotation = 8;   // Initial rotation (heading)
         let scale = 1;      // Initial scale of the model
 
         const modelEntity = document.querySelector('#model');
+        const latitudeInput = document.getElementById('latitude-input');
+        const longitudeInput = document.getElementById('longitude-input');
 
         // Function to update model's position
         function updatePosition() {
@@ -168,8 +203,10 @@
 
         // Use specified GPS coordinates
         function useSpecifiedCoordinates() {
-            latitude = 46.559082;
-            longitude = 15.643159;
+            latitude = alternateCoordinates.latitude;
+            longitude = alternateCoordinates.longitude;
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
             console.log("Using specified coordinates");
             updatePosition();
         }
@@ -179,12 +216,27 @@
             navigator.geolocation.getCurrentPosition((position) => {
                 latitude = position.coords.latitude;
                 longitude = position.coords.longitude;
+                latitudeInput.value = latitude;
+                longitudeInput.value = longitude;
                 console.log("Using current GPS coordinates: ", latitude, longitude);  // Log the fetched coordinates
                 updatePosition();
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
             });
+        }
+
+        // Set input fields to current GPS coordinates on load
+        window.onload = function () {
+            useCurrentCoordinates(); // Fetch current location on load
+        };
+
+        // Update model coordinates from input fields
+        function updateModelCoordinates() {
+            latitude = parseFloat(latitudeInput.value);
+            longitude = parseFloat(longitudeInput.value);
+            console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}`);
+            updatePosition();
         }
     </script>
 </body>
