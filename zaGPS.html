@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Frame AR.js Model with Enhanced Lighting</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <a-scene
+        vr-mode-ui="enabled: false"
+        arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+        embedded
+        renderer="logarithmicDepthBuffer: true; antialias: true;"
+    >
+        <!-- GPS camera with rotation tracking -->
+        <a-camera gps-camera="gpsMinDistance: 5;" rotation-reader></a-camera>
+
+        <!-- GLTF model placed at specific GPS coordinates -->
+        <a-entity
+            gltf-model="https://zunuk.github.io/testni/Finito1.glb"
+            gps-entity-place="latitude: 46.559176; longitude: 15.640104;"
+            scale="1 1 1"
+            rotation="0 0 0"
+        ></a-entity>
+
+        <!-- Enhanced Lighting Setup -->
+
+        <!-- Ambient light for soft, overall lighting -->
+        <a-light type="ambient" color="#FFF" intensity="0.4"></a-light>
+
+        <!-- Hemispheric light for sky-ground natural lighting -->
+        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="0.9" position="0 2 0"></a-light>
+
+        <!-- Directional lights for better highlights and shadows -->
+        <a-light type="directional" color="#FFF" intensity="1" position="-2 4 -1" castShadow="true"></a-light>
+        <a-light type="directional" color="#FFF" intensity="0.7" position="1 3 1"></a-light>
+    </a-scene>
+
+    <script>
+        window.onload = function() {
+            alert("Please allow camera and GPS access for the AR experience.");
+        };
+    </script>
+</body>
+</html>
