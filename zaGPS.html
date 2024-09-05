@@ -35,7 +35,7 @@
             display: flex;
             gap: 10px;
         }
-        .toggle-controls {
+        .location-controls {
             position: absolute;
             top: 50px;
             right: 10px;
@@ -57,7 +57,7 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- GPS camera with rotation tracking -->
-        <a-camera gps-camera="gpsMinDistance: 0.5;" rotation-reader></a-camera>
+        <a-camera gps-camera="gpsMinDistance: 5;" rotation-reader></a-camera>
 
         <!-- GLTF model placed at current or specified GPS coordinates -->
         <a-entity
@@ -65,16 +65,16 @@
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             gps-entity-place="latitude: 46.559082; longitude: 15.643159;"  <!-- Default specified location -->
             scale="1 1 1"  <!-- Initial scale set to 1 -->
-            position="0 0 0"  <!-- Adjust the Y position to simulate elevation -->
+            position="0 30 0"  <!-- Adjust the Y position to simulate elevation -->
             rotation="0 8 0"  <!-- Heading adjusted to 8 degrees -->
         ></a-entity>
 
         <!-- Enhanced Lighting Setup -->
         <a-sky color="#ECECEC"></a-sky>
-        <a-light type="ambient" color="#FFF" intensity="2.7"></a-light>
-        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="2" position="0 4 0"></a-light>
-        <a-light type="directional" color="#FFF" intensity="2.5" position="-2 4 -1" castShadow="true"></a-light>
-        <a-light type="point" color="#FFF" intensity="2" position="2 3 2"></a-light>
+        <a-light type="ambient" color="#FFF" intensity="0.7"></a-light>
+        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1" position="0 4 0"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.5" position="-2 4 -1" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="1" position="2 3 2"></a-light>
     </a-scene>
 
     <!-- Control Buttons for Position and Rotation -->
@@ -105,19 +105,18 @@
         <button onclick="changeScale(-0.1)">Scale -</button>
     </div>
 
-    <!-- Toggle GPS Coordinates Button -->
-    <div class="toggle-controls">
-        <button onclick="toggleCoordinates()">Toggle Coordinates</button>
+    <!-- Separate GPS Location Buttons -->
+    <div class="location-controls">
+        <button onclick="useSpecifiedCoordinates()">Specified Coordinates</button>
+        <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
     </div>
 
     <script>
         let latitude = 46.559082;
         let longitude = 15.643159;
-        let altitude = 0;  // Relative Y-position, simulating elevation
+        let altitude = 30;  // Relative Y-position, simulating elevation
         let rotation = 8;   // Initial rotation (heading)
         let scale = 1;      // Initial scale of the model
-
-        let useCurrentLocation = false;  // Start with specified location
 
         const modelEntity = document.querySelector('#model');
 
@@ -167,23 +166,22 @@
             updateScale();
         }
 
-        // Function to toggle between current GPS coordinates and specified coordinates
-        function toggleCoordinates() {
-            if (useCurrentLocation) {
-                // Revert to specified coordinates
-                latitude = 46.559082;
-                longitude = 15.643159;
-                useCurrentLocation = false;
+        // Use specified GPS coordinates
+        function useSpecifiedCoordinates() {
+            latitude = 46.559082;
+            longitude = 15.643159;
+            updatePosition();
+        }
+
+        // Use current GPS coordinates
+        function useCurrentCoordinates() {
+            navigator.geolocation.getCurrentPosition((position) => {
+                latitude = position.coords.latitude;
+                longitude = position.coords.longitude;
                 updatePosition();
-            } else {
-                // Get current GPS coordinates and use them
-                navigator.geolocation.getCurrentPosition((position) => {
-                    latitude = position.coords.latitude;
-                    longitude = position.coords.longitude;
-                    useCurrentLocation = true;
-                    updatePosition();
-                });
-            }
+            }, (error) => {
+                alert("Error accessing current location: " + error.message);
+            });
         }
     </script>
 </body>
