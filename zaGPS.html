@@ -71,16 +71,16 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 0.5;"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;" <!-- Set initial position -->
+            gps-entity-place="latitude: 46.559173; longitude: 15.640122;" <!-- Corrected to 'gps-entity-place' -->
             rotation="0 8 0"
             scale="1 1 1"
-            visible="false" <!-- Initially hidden until placed -->
+            visible="true"
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -154,7 +154,7 @@
         const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
         function updatePosition() {
-            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            modelEntity.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
             console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}`);
         }
 
@@ -193,7 +193,6 @@
             latitudeInput.value = latitude;
             longitudeInput.value = longitude;
             updatePosition();
-            modelEntity.setAttribute('visible', 'true'); // Make model visible
         }
 
         function useCurrentCoordinates() {
@@ -206,7 +205,6 @@
                 longitudeInput.value = longitude;
                 deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 updatePosition();
-                modelEntity.setAttribute('visible', 'true'); // Make model visible
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
