@@ -71,7 +71,7 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 10;" id="camera"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
@@ -80,7 +80,7 @@
             gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;"
             rotation="0 8 0"
             scale="1 1 1"
-            position="0 0 0"  <!-- Altitude controlled by y position -->
+            position="0 0 0"
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -149,6 +149,7 @@
         let scale = 1;
 
         const modelEntity = document.querySelector('#model');
+        const cameraEntity = document.querySelector('#camera'); // Camera entity
         const latitudeInput = document.getElementById('latitude-input');
         const longitudeInput = document.getElementById('longitude-input');
         const altitudeInput = document.getElementById('altitude-input');
@@ -176,7 +177,8 @@
 
         function changeAltitude(step) {
             altitude += step;
-            updatePosition();
+            modelEntity.setAttribute('position', `0 ${altitude} 0`);
+            console.log(`Altitude updated: ${altitude}`);
         }
 
         function changeRotation(step) {
@@ -194,6 +196,7 @@
             longitude = parseFloat(longitudeInput.value) || longitude;
             altitude = parseFloat(altitudeInput.value) || altitude;
             updatePosition();
+            console.log("Specified coordinates used.");
         }
 
         function useCurrentCoordinates() {
@@ -205,7 +208,7 @@
                 deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 latitude = deviceLatitude;
                 longitude = deviceLongitude;
-                updatePosition(); // Posodobi pozicijo modela
+                updatePosition(); // Move the model to the current GPS coordinates
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
@@ -224,6 +227,21 @@
             const content = document.getElementById('input-coordinates-content');
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
+
+        // Update model view relative to the camera
+        function updateModelView() {
+            const cameraPosition = cameraEntity.getAttribute('position');
+            const distanceToModel = Math.sqrt(
+                Math.pow(cameraPosition.x - modelEntity.getAttribute('position').x, 2) +
+                Math.pow(cameraPosition.y - modelEntity.getAttribute('position').y, 2) +
+                Math.pow(cameraPosition.z - modelEntity.getAttribute('position').z, 2)
+            );
+            console.log(`Distance to model: ${distanceToModel}`);
+            // Additional checks or logic based on distance/view angle can go here
+        }
+
+        // Monitor the camera's position and view continuously
+        setInterval(updateModelView, 100);
 
         window.onload = function () {
             updatePosition(); // Use initial GPS coordinates to load the model
