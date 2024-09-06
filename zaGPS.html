@@ -146,6 +146,7 @@
     let longitude = 15.631938;
     let altitude = 0; // Altitude for the model (handled by y position in "position")
     let rotation = 8; // Initial rotation (heading)
+    let scale = 1; // Initial scale
     let modelEntity;
     let latitudeInput;
     let longitudeInput;
@@ -190,6 +191,14 @@
     function changeRotation(step) {
         rotation += step;
         updateRotation();
+    }
+
+    function changeScale(step) {
+        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
+        if (modelEntity) {
+            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
+            console.log(`Model scale updated: ${scale}`);
+        }
     }
 
     // Update input fields when "Specified Coordinates" button is pressed
@@ -237,7 +246,6 @@
 
     // Initialize model and input fields
     window.onload = function () {
-        // Initialize the model and input fields after the window has loaded
         modelEntity = document.querySelector('#model');
         latitudeInput = document.getElementById('latitude-input');
         longitudeInput = document.getElementById('longitude-input');
@@ -261,6 +269,7 @@
         }
     };
 </script>
+
   
 </body>
 </html>
