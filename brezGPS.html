@@ -56,7 +56,7 @@
         <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
-    <!-- Control Buttons for Position and Rotation -->
+    <!-- Control Buttons for Position, Rotation, and Scale -->
     <div class="controls">
         <h3>Move Model</h3>
         <div>
@@ -77,12 +77,19 @@
             <button onclick="changeRotation(1)">Rot +</button>
             <button onclick="changeRotation(-1)">Rot -</button>
         </div>
+
+        <h3>Scale Model</h3>
+        <div>
+            <button onclick="changeScale(0.1)">Scale +</button>
+            <button onclick="changeScale(-0.1)">Scale -</button>
+        </div>
     </div>
 
     <script>
         const modelEntity = document.querySelector('#model');
         let position = { x: 0, y: 0, z: 0 };
         let rotation = 8;
+        let scale = 1;
 
         // Update the model's position
         function changePosition(axis, value) {
@@ -96,6 +103,13 @@
             rotation += value;
             modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
             console.log(`Rotation: ${rotation}`);
+        }
+
+        // Update the model's scale
+        function changeScale(value) {
+            scale = Math.max(0.1, scale + value);  // Prevent scale from going below 0.1
+            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
+            console.log(`Scale: ${scale}`);
         }
 
         // Monitor and update camera angle and distance
