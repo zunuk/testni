@@ -142,12 +142,156 @@
         </div>
     </div>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>PrikazAR</title>
+        <!-- Permissions-Policy to disable FLoC -->
+    <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
+    <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .scale-controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+        }
+        .location-controls {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .input-controls {
+            position: absolute;
+            top: 100px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #input-coordinates-content {
+            display: block;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <a-scene
+        vr-mode-ui="enabled: false"
+        arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+        embedded
+        renderer="logarithmicDepthBuffer: true; antialias: true;"
+    >
+        <!-- New location-based GPS camera -->
+        <a-camera gps-new-camera="gpsMinDistance: 0.25;" id="camera"></a-camera>
+
+        <!-- GLTF model placed at specific GPS coordinates -->
+        <a-entity
+            id="model"
+            gltf-model="https://zunuk.github.io/testni/Finito1.glb"
+            gps-new-entity-place="latitude: 46.369833; longitude: 15.631938;"
+            rotation="0 8 0"
+            scale="1 1 1"
+            visible="true"
+        ></a-entity>
+
+        <!-- Lighting Setup -->
+        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
+        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
+    </a-scene>
+
+    <!-- Control Buttons for Position, Rotation, and Altitude -->
+    <div class="controls">
+        <h3>Move Model</h3>
+        <div>
+            <button onclick="changeLatitude(0.00005)">Lat +</button>
+            <button onclick="changeLatitude(-0.00005)">Lat -</button>
+        </div>
+        <div>
+            <button onclick="changeLongitude(0.00005)">Lon +</button>
+            <button onclick="changeLongitude(-0.00005)">Lon -</button>
+        </div>
+        <div>
+            <button onclick="changeAltitude(1)">Alt +</button>
+            <button onclick="changeAltitude(-1)">Alt -</button>
+        </div>
+        <h3>Rotate Model</h3>
+        <div>
+            <button onclick="changeRotation(5)">Rot +</button>
+            <button onclick="changeRotation(-5)">Rot -</button>
+        </div>
+    </div>
+
+    <!-- Scale Control Buttons at the Top -->
+    <div class="scale-controls">
+        <button onclick="changeScale(0.1)">Scale +</button>
+        <button onclick="changeScale(-0.1)">Scale -</button>
+    </div>
+
+    <!-- Separate GPS Location Buttons -->
+    <div class="location-controls">
+        <button onclick="useSpecifiedCoordinates()">Specified Coordinates</button>
+        <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
+    </div>
+
+    <!-- Input window for latitude and longitude, with minimization -->
+    <div class="input-controls">
+        <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
+        <div id="input-coordinates-content">
+            <h3>Model Coordinates</h3>
+            <label for="latitude-input">Latitude:</label>
+            <input type="number" id="latitude-input" step="0.000001" value="46.559173" />
+            <label for="longitude-input">Longitude:</label>
+            <input type="number" id="longitude-input" step="0.000001" value="15.640122" />
+            <label for="altitude-input">Altitude:</label>
+            <input type="number" id="altitude-input" step="1" value="0" />
+            <button onclick="updateModelCoordinates()">Set Coordinates</button>
+            <h3>Device Coordinates</h3>
+            <p id="device-coordinates">Latitude: , Longitude: </p>
+        </div>
+    </div>
+
 <script>
     let latitude = 46.369833;
     let longitude = 15.631938;
-   
-    let rotation = 8;  // Initial rotation for the model
-    let scale = 1;     // Scale for the model
+    
+    let rotation = 8; // Initial rotation (heading)
+    let scale = 1; // Initial scale
 
     let modelEntity;
     let latitudeInput;
@@ -155,52 +299,84 @@
     let altitudeInput;
     let deviceCoordinatesDisplay;
 
-    // Update the model's altitude, scale, and rotation (let AR.js handle latitude and longitude)
+    // Update the model's GPS position, scale, and rotation dynamically
     function updateModelAttributes() {
         if (modelEntity) {
-            // Let AR.js handle GPS latitude and longitude
-            // We only manually update the y-position (altitude), scale, and rotation
-
-            modelEntity.setAttribute('position', `0 ${altitude} 0`); // Altitude (y-axis)
+            // Update the GPS position (latitude, longitude)
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            
+            // Update the altitude (y position), scale, and rotation
+            modelEntity.setAttribute('position', `0 ${altitude} 0`);
             modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
             modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
 
-            console.log(`Attributes updated: Altitude=${altitude}, Scale=${scale}, Rotation=${rotation}`);
+            console.log(`Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}, Scale=${scale}, Rotation=${rotation}`);
         }
     }
 
-    // Change altitude by a step (update the y-axis position)
+    // Change the latitude
+    function changeLatitude(step) {
+        latitude += step;
+        latitudeInput.value = latitude;
+        updateModelAttributes();
+    }
+
+    // Change the longitude
+    function changeLongitude(step) {
+        longitude += step;
+        longitudeInput.value = longitude;
+        updateModelAttributes();
+    }
+
+    // Change the altitude
     function changeAltitude(step) {
         altitude += step;
         altitudeInput.value = altitude;
         updateModelAttributes();
     }
 
-    // Change rotation by a step
+    // Change the rotation
     function changeRotation(step) {
         rotation += step;
         updateModelAttributes();
     }
 
-    // Change scale by a step
+    // Change the scale
     function changeScale(step) {
-        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
+        scale = Math.max(0.1, scale + step); // Prevent scale from going below 0.1
         updateModelAttributes();
+    }
+
+    // Use specified coordinates from input fields
+    function useSpecifiedCoordinates() {
+        latitude = parseFloat(latitudeInput.value);
+        longitude = parseFloat(longitudeInput.value);
+        altitude = parseFloat(altitudeInput.value);
+        updateModelAttributes();
+        console.log("Specified coordinates set.");
     }
 
     // Use current GPS coordinates of the device
     function useCurrentCoordinates() {
         navigator.geolocation.getCurrentPosition((position) => {
-            latitude = position.coords.latitude;
-            longitude = position.coords.longitude;
-            latitudeInput.value = latitude;
-            longitudeInput.value = longitude;
-            deviceCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
-            console.log(`Current device coordinates: Latitude=${latitude}, Longitude=${longitude}`);
+            const deviceLatitude = position.coords.latitude;
+            const deviceLongitude = position.coords.longitude;
+            latitudeInput.value = deviceLatitude;
+            longitudeInput.value = deviceLongitude;
+            deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
+            latitude = deviceLatitude;
+            longitude = deviceLongitude;
+            updateModelAttributes(); // Move the model to the current GPS coordinates
         }, (error) => {
             console.error("Error accessing current location: " + error.message);
             alert("Error accessing current location: " + error.message);
         });
+    }
+
+    // Toggle input window visibility
+    function toggleInputWindow() {
+        const content = document.getElementById('input-coordinates-content');
+        content.style.display = content.style.display === 'none' ? 'block' : 'none';
     }
 
     // Initialize model and input fields after window loads
@@ -227,6 +403,9 @@
         }
     };
 </script>
+
+</body>
+</html>
 
 
 </body>
