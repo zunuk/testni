@@ -77,10 +77,9 @@
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-entity-place="latitude: 46.559173; longitude: 15.640122;" <!-- Corrected to 'gps-entity-place' -->
+            gps-entity-place="latitude: 46.559173; longitude: 15.640122;"
             rotation="0 8 0"
             scale="1 1 1"
-            visible="true"
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -94,21 +93,17 @@
     <div class="controls">
         <h3>Move Model</h3>
         <div>
-            <button onclick="changeLatitude(0.5)">Lat +</button>
-            <button onclick="changeLatitude(-0.5)">Lat -</button>
+            <button onclick="changeLatitude(0.00005)">Lat +</button>
+            <button onclick="changeLatitude(-0.00005)">Lat -</button>
         </div>
         <div>
-            <button onclick="changeLongitude(0.5)">Lon +</button>
-            <button onclick="changeLongitude(-0.5)">Lon -</button>
-        </div>
-        <div>
-            <button onclick="changeAltitude(0.5)">Alt +</button>
-            <button onclick="changeAltitude(-0.5)">Alt -</button>
+            <button onclick="changeLongitude(0.00005)">Lon +</button>
+            <button onclick="changeLongitude(-0.00005)">Lon -</button>
         </div>
         <h3>Rotate Model</h3>
         <div>
-            <button onclick="changeRotation(0.5)">Rot +</button>
-            <button onclick="changeRotation(-0.5)">Rot -</button>
+            <button onclick="changeRotation(5)">Rot +</button>
+            <button onclick="changeRotation(-5)">Rot -</button>
         </div>
     </div>
 
@@ -146,7 +141,6 @@
         let deviceLongitude = null;
         let rotation = 8; // Initial rotation (heading)
         let scale = 1;    // Original size scale (no scaling for precision)
-        let altitude = 0;
 
         const modelEntity = document.querySelector('#model');
         const latitudeInput = document.getElementById('latitude-input');
@@ -163,17 +157,12 @@
         }
 
         function changeLatitude(step) {
-            latitude += step / 111320;
+            latitude += step;
             updatePosition();
         }
 
         function changeLongitude(step) {
-            longitude += step / (111320 * Math.cos(latitude * (Math.PI / 180)));
-            updatePosition();
-        }
-
-        function changeAltitude(step) {
-            altitude += step;
+            longitude += step;
             updatePosition();
         }
 
@@ -188,10 +177,8 @@
         }
 
         function useSpecifiedCoordinates() {
-            latitude = 46.559082;
-            longitude = 15.643159;
-            latitudeInput.value = latitude;
-            longitudeInput.value = longitude;
+            latitude = parseFloat(latitudeInput.value) || latitude;
+            longitude = parseFloat(longitudeInput.value) || longitude;
             updatePosition();
         }
 
@@ -222,12 +209,6 @@
             const content = document.getElementById('input-coordinates-content');
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
-
-        // Check for AR.js initialization and show model after GPS is ready
-        document.addEventListener("gps-entity-place-added", function (event) {
-            modelEntity.setAttribute('visible', 'true'); // Show model when GPS location is established
-            console.log("GPS entity place added.");
-        });
 
         // Automatically use current GPS coordinates to display the model on load
         window.onload = function () {
