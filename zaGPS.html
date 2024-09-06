@@ -141,10 +141,8 @@
             <p id="device-coordinates">Latitude: , Longitude: </p>
         </div>
     </div>
-<script>
-    let altitude = 0;  // Altitude for the model
-    let rotation = 8;  // Initial rotation for the model
-    let scale = 1;     // Scale for the model
+
+    <script>
 
     let modelEntity;
     let altitudeInput;
@@ -161,22 +159,8 @@
         }
     }
 
-    // Manually update altitude, scale, or rotation via controls
-    function changeAltitude(step) {
-        altitude += step;
-        altitudeInput.value = altitude;
-        updateModelAttributes();
-    }
+   
 
-    function changeRotation(step) {
-        rotation += step;
-        updateModelAttributes();
-    }
-
-    function changeScale(step) {
-        scale = Math.max(0.1, scale + step); // Prevent scale from going below 0.1
-        updateModelAttributes();
-    }
 
     // Initialize the model and inputs after the window loads
     window.onload = function () {
