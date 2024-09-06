@@ -71,7 +71,13 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 10;" id="camera"></a-camera>
+        <a-camera
+            gps-new-camera="gpsMinDistance: 0;" 
+            id="camera"
+            wasd-controls-enabled="false" 
+            look-controls="enabled: false" 
+            zoom="false" <!-- Disable zoom -->
+        ></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
@@ -227,21 +233,6 @@
             const content = document.getElementById('input-coordinates-content');
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
-
-        // Update model view relative to the camera
-        function updateModelView() {
-            const cameraPosition = cameraEntity.getAttribute('position');
-            const distanceToModel = Math.sqrt(
-                Math.pow(cameraPosition.x - modelEntity.getAttribute('position').x, 2) +
-                Math.pow(cameraPosition.y - modelEntity.getAttribute('position').y, 2) +
-                Math.pow(cameraPosition.z - modelEntity.getAttribute('position').z, 2)
-            );
-            console.log(`Distance to model: ${distanceToModel}`);
-            // Additional checks or logic based on distance/view angle can go here
-        }
-
-        // Monitor the camera's position and view continuously
-        setInterval(updateModelView, 100);
 
         window.onload = function () {
             updatePosition(); // Use initial GPS coordinates to load the model
