@@ -1,50 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>AR.js GPS Debug Test</title>
-    <!-- Load the correct version of AR.js with THREEx properly included -->
-    <script src="https://cdn.rawgit.com/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Frame AR.js Model at GPS Location</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .scale-controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+        }
+        .location-controls {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .input-controls {
+            position: absolute;
+            top: 100px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #input-coordinates-content {
+            display: block;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <a-scene 
-        embedded 
-        vr-mode-ui="enabled: false" 
-        arjs="sourceType: webcam; debugUIEnabled: true;" <!-- Enable AR.js Debug UI -->
+    <a-scene
+        vr-mode-ui="enabled: false"
+        arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+        embedded
+        renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
-        <!-- GPS-based camera -->
-        <a-camera gps-new-camera></a-camera>
+        <!-- New location-based GPS camera -->
+        <a-camera gps-new-camera="gpsMinDistance: 0;" id="camera"></a-camera>
 
-        <!-- Entity with fixed GPS location -->
-        <a-entity 
-            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;" 
+        <!-- GLTF model placed at specific GPS coordinates -->
+        <a-entity
+            id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
+            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;"
+            rotation="0 8 0"
             scale="1 1 1"
-            rotation="0 0 0"
+            visible="true"
         ></a-entity>
+
+        <!-- Lighting Setup -->
+        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
+        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
-    <script>
-        // Debugging function to capture GPS data
-        window.onload = () => {
-            console.log("Initializing AR.js and checking GPS.");
+    <!-- Control Buttons for Position, Rotation, and Altitude -->
+    <div class="controls">
+        <h3>Move Model</h3>
+        <div>
+            <button onclick="changeLatitude(0.00005)">Lat +</button>
+            <button onclick="changeLatitude(-0.00005)">Lat -</button>
+        </div>
+        <div>
+            <button onclick="changeLongitude(0.00005)">Lon +</button>
+            <button onclick="changeLongitude(-0.00005)">Lon -</button>
+        </div>
+        <div>
+            <button onclick="changeAltitude(1)">Alt +</button>
+            <button onclick="changeAltitude(-1)">Alt -</button>
+        </div>
+        <h3>Rotate Model</h3>
+        <div>
+            <button onclick="changeRotation(5)">Rot +</button>
+            <button onclick="changeRotation(-5)">Rot -</button>
+        </div>
+    </div>
 
-            // Check for GPS data
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    console.log("Device GPS coordinates:");
-                    console.log("Latitude: " + position.coords.latitude);
-                    console.log("Longitude: " + position.coords.longitude);
-                }, function (error) {
-                    console.error("Error accessing GPS: ", error.message);
-                });
-            } else {
-                console.error("Geolocation is not supported by this browser.");
-            }
+    <!-- Scale Control Buttons at the Top -->
+    <div class="scale-controls">
+        <button onclick="changeScale(0.1)">Scale +</button>
+        <button onclick="changeScale(-0.1)">Scale -</button>
+    </div>
+
+    <!-- Separate GPS Location Buttons -->
+    <div class="location-controls">
+        <button onclick="useSpecifiedCoordinates()">Specified Coordinates</button>
+        <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
+    </div>
+
+    <!-- Input window for latitude and longitude, with minimization -->
+    <div class="input-controls">
+        <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
+        <div id="input-coordinates-content">
+            <h3>Model Coordinates</h3>
+            <label for="latitude-input">Latitude:</label>
+            <input type="number" id="latitude-input" step="0.000001" value="46.559173" />
+            <label for="longitude-input">Longitude:</label>
+            <input type="number" id="longitude-input" step="0.000001" value="15.640122" />
+            <label for="altitude-input">Altitude:</label>
+            <input type="number" id="altitude-input" step="1" value="0" />
+            <button onclick="updateModelCoordinates()">Set Coordinates</button>
+            <h3>Device Coordinates</h3>
+            <p id="device-coordinates">Latitude: , Longitude: </p>
+        </div>
+    </div>
+
+    <script>
+        let latitude = 46.559173;
+        let longitude = 15.640122;
+        let altitude = 0; // Altitude for the model (handled by y position in "position")
+        let rotation = 8; // Initial rotation (heading)
+        let scale = 1;
+
+        const modelEntity = document.querySelector('#model');
+        const latitudeInput = document.getElementById('latitude-input');
+        const longitudeInput = document.getElementById('longitude-input');
+        const altitudeInput = document.getElementById('altitude-input');
+        const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
+
+        // Ensure the model is correctly placed in real-world coordinates and not stuck to the camera
+        function updatePosition() {
+            // Correctly set the GPS coordinates of the model
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            modelEntity.setAttribute('position', `0 ${altitude} 0`); // Adjust altitude through the y position
+            console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
+        }
+
+        function updateRotation() {
+            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+        }
+
+        function changeLatitude(step) {
+            latitude += step;
+            latitudeInput.value = latitude;
+            updatePosition();
+        }
+
+        function changeLongitude(step) {
+            longitude += step;
+            longitudeInput.value = longitude;
+            updatePosition();
+        }
+
+        function changeAltitude(step) {
+            altitude += step;
+            altitudeInput.value = altitude;
+            modelEntity.setAttribute('position', `0 ${altitude} 0`);
+            console.log(`Altitude updated: ${altitude}`);
+        }
+
+        function changeRotation(step) {
+            rotation += step;
+            updateRotation();
+        }
+
+        function changeScale(step) {
+            scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
+            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
+        }
+
+        // Fix: When the "Specified Coordinates" button is pressed, update the input fields
+        function useSpecifiedCoordinates() {
+            latitudeInput.value = 46.560000;
+            longitudeInput.value = 15.641000;
+            altitudeInput.value = 10;
+            latitude = parseFloat(latitudeInput.value);
+            longitude = parseFloat(longitudeInput.value);
+            altitude = parseFloat(altitudeInput.value);
+            updatePosition();
+            console.log("Specified coordinates set.");
+        }
+
+        // Use current GPS coordinates of the device
+        function useCurrentCoordinates() {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const deviceLatitude = position.coords.latitude;
+                const deviceLongitude = position.coords.longitude;
+                latitudeInput.value = deviceLatitude;
+                longitudeInput.value = deviceLongitude;
+                deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
+                latitude = deviceLatitude;
+                longitude = deviceLongitude;
+                updatePosition(); // Move the model to the current GPS coordinates
+            }, (error) => {
+                console.error("Error accessing current location: " + error.message);
+                alert("Error accessing current location: " + error.message);
+            });
+        }
+
+        // Update model's position based on entered coordinates
+        function updateModelCoordinates() {
+            latitude = parseFloat(latitudeInput.value);
+            longitude = parseFloat(longitudeInput.value);
+            altitude = parseFloat(altitudeInput.value);
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
+            updatePosition();
+        }
+
+        function toggleInputWindow() {
+            const content = document.getElementById('input-coordinates-content');
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Dynamically scale the model based on distance
+        function scaleModelBasedOnDistance(distance) {
+            const scaleFactor = Math.max(0.1, 20 / distance); // Scale down when far, scale up when near
+            modelEntity.setAttribute('scale', `${scaleFactor} ${scaleFactor} ${scaleFactor}`);
+            console.log(`Scaling model based on distance: ${distance} meters, scale: ${scaleFactor}`);
+        }
+
+        // Listen to GPS updates and scale the model based on distance to the camera
+        modelEntity.addEventListener('gps-entity-place-update', (event) => {
+            const distance = event.detail.distance;
+            scaleModelBasedOnDistance(distance); // Dynamically scale based on distance
+        });
+
+        window.onload = function () {
+            updatePosition(); // Use initial GPS coordinates to load the model
         };
     </script>
 </body>
