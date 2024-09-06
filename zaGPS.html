@@ -91,7 +91,7 @@
         <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
-    <!-- Control Buttons for Position, Rotation, and Altitude -->
+    <!-- Control Buttons for Position, Rotation, and Y-Position -->
     <div class="controls">
         <h3>Move Model</h3>
         <div>
@@ -103,8 +103,8 @@
             <button onclick="changeLongitude(-0.00005)">Lon -</button>
         </div>
         <div>
-            <button onclick="changeAltitude(1)">Alt +</button>
-            <button onclick="changeAltitude(-1)">Alt -</button>
+            <button onclick="changeYPosition(1)">Y-Pos +</button>
+            <button onclick="changeYPosition(-1)">Y-Pos -</button>
         </div>
         <h3>Rotate Model</h3>
         <div>
@@ -134,8 +134,8 @@
             <input type="number" id="latitude-input" step="0.000001" value="46.559173" />
             <label for="longitude-input">Longitude:</label>
             <input type="number" id="longitude-input" step="0.000001" value="15.640122" />
-            <label for="altitude-input">Altitude:</label>
-            <input type="number" id="altitude-input" step="1" value="0" />
+            <label for="y-position-input">Y-Position:</label>
+            <input type="number" id="y-position-input" step="1" value="0" />
             <button onclick="updateModelCoordinates()">Set Coordinates</button>
             <h3>Device Coordinates</h3>
             <p id="device-coordinates">Latitude: , Longitude: </p>
@@ -145,28 +145,28 @@
 <script>
     let latitude = 46.369833;
     let longitude = 15.631938;
-    
+    let yPosition = 0; // Initial y-position
     let rotation = 8; // Initial rotation (heading)
     let scale = 1; // Initial scale
 
     let modelEntity;
     let latitudeInput;
     let longitudeInput;
-    let altitudeInput;
+    let yPositionInput;
     let deviceCoordinatesDisplay;
 
-    // Update the model's GPS position, scale, and rotation dynamically
+    // Update the model's GPS position, y-position, scale, and rotation dynamically
     function updateModelAttributes() {
         if (modelEntity) {
             // Update the GPS position (latitude, longitude)
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
             
-            // Update the altitude (y position), scale, and rotation
-            modelEntity.setAttribute('position', `0 ${altitude} 0`);
+            // Update the y-position, scale, and rotation
+            modelEntity.setAttribute('position', `0 ${yPosition} 0`);
             modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
             modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
 
-            console.log(`Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}, Scale=${scale}, Rotation=${rotation}`);
+            console.log(`Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Y-Position=${yPosition}, Scale=${scale}, Rotation=${rotation}`);
         }
     }
 
@@ -184,10 +184,10 @@
         updateModelAttributes();
     }
 
-    // Change the altitude
-    function changeAltitude(step) {
-        altitude += step;
-        altitudeInput.value = altitude;
+    // Change the y-position
+    function changeYPosition(step) {
+        yPosition += step;
+        yPositionInput.value = yPosition;
         updateModelAttributes();
     }
 
@@ -207,7 +207,7 @@
     function useSpecifiedCoordinates() {
         latitude = parseFloat(latitudeInput.value);
         longitude = parseFloat(longitudeInput.value);
-        altitude = parseFloat(altitudeInput.value);
+        yPosition = parseFloat(yPositionInput.value);
         updateModelAttributes();
         console.log("Specified coordinates set.");
     }
@@ -240,7 +240,7 @@
         modelEntity = document.querySelector('#model');
         latitudeInput = document.getElementById('latitude-input');
         longitudeInput = document.getElementById('longitude-input');
-        altitudeInput = document.getElementById('altitude-input');
+        yPositionInput = document.getElementById('y-position-input');
         deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
         if (modelEntity) {
