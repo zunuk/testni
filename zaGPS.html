@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js Toggle Between GPS and Camera Mode</title>
+    <title>A-Frame AR.js with Full Controls and Toggle</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -13,10 +13,40 @@
             height: 100%;
             overflow: hidden;
         }
-        .toggle-controls {
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .scale-controls {
             position: absolute;
             top: 10px;
-            left: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+        }
+        .location-controls {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .toggle-controls {
+            position: absolute;
+            top: 100px;
+            right: 10px;
             background-color: rgba(255, 255, 255, 0.7);
             padding: 10px;
             border-radius: 5px;
@@ -50,6 +80,40 @@
         <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
+    <!-- Control Buttons for Position and Rotation -->
+    <div class="controls">
+        <h3>Move Model</h3>
+        <div>
+            <button onclick="changeLatitude(0.5)">Lat +</button>
+            <button onclick="changeLatitude(-0.5)">Lat -</button>
+        </div>
+        <div>
+            <button onclick="changeLongitude(0.5)">Lon +</button>
+            <button onclick="changeLongitude(-0.5)">Lon -</button>
+        </div>
+        <div>
+            <button onclick="changeAltitude(0.5)">Alt +</button>
+            <button onclick="changeAltitude(-0.5)">Alt -</button>
+        </div>
+        <h3>Rotate Model</h3>
+        <div>
+            <button onclick="changeRotation(0.5)">Rot +</button>
+            <button onclick="changeRotation(-0.5)">Rot -</button>
+        </div>
+    </div>
+
+    <!-- Scale Control Buttons at the Top -->
+    <div class="scale-controls">
+        <button onclick="changeScale(0.1)">Scale +</button>
+        <button onclick="changeScale(-0.1)">Scale -</button>
+    </div>
+
+    <!-- Separate GPS Location Buttons -->
+    <div class="location-controls">
+        <button onclick="useSpecifiedCoordinates()">Specified Coordinates</button>
+        <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
+    </div>
+
     <!-- Toggle Button to switch between modes -->
     <div class="toggle-controls">
         <button id="toggleModeButton" onclick="toggleMode()">Switch to Location-Based</button>
@@ -57,6 +121,12 @@
 
     <script>
         let isLocationBased = false;
+        let latitude = 46.559082;
+        let longitude = 15.643159;
+        let rotation = 8;
+        let scale = 1;
+        let altitude = 0;
+
         const modelEntity = document.querySelector('#model');
 
         function setLocationBasedMode() {
@@ -93,6 +163,53 @@
                 document.getElementById('toggleModeButton').innerText = 'Switch to Camera-Based';
             }
             isLocationBased = !isLocationBased;
+        }
+
+        function changeLatitude(step) {
+            latitude += step / 111320; // 1 meter ≈ 1/111320 degrees
+            updatePosition();
+        }
+
+        function changeLongitude(step) {
+            longitude += step / (111320 * Math.cos(latitude * (Math.PI / 180))); // Adjust for latitude
+            updatePosition();
+        }
+
+        function changeAltitude(step) {
+            altitude += step;
+            updatePosition();
+        }
+
+        function changeRotation(step) {
+            rotation += step;
+            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+        }
+
+        function changeScale(step) {
+            scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
+            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
+        }
+
+        function useSpecifiedCoordinates() {
+            latitude = 46.559082;
+            longitude = 15.643159;
+            updatePosition();
+        }
+
+        function useCurrentCoordinates() {
+            navigator.geolocation.getCurrentPosition((position) => {
+                latitude = position.coords.latitude;
+                longitude = position.coords.longitude;
+                updatePosition();
+            }, (error) => {
+                console.error("Error accessing current location: " + error.message);
+                alert("Error accessing current location: " + error.message);
+            });
+        }
+
+        function updatePosition() {
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            modelEntity.setAttribute('position', '0 0 0');
         }
 
         // Start with camera-based mode
