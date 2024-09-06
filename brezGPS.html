@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js Fixed Model Control</title>
+    <title>A-Frame AR.js Camera Zoom Fix</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -34,10 +34,16 @@
     <a-scene
         embedded
         renderer="logarithmicDepthBuffer: true; antialias: true;"
-        arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;"  <!-- Ensure AR.js doesn't scale -->
+        arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false; cameraParametersUrl: '';"  <!-- Disable dynamic camera handling -->
     >
-        <!-- Fixed Field of View to prevent zoom -->
-        <a-camera id="camera" fov="80" look-controls enabled="true" position="0 1.6 0"></a-camera>
+        <!-- Custom camera setup to prevent AR.js from adjusting the camera -->
+        <a-entity
+            id="fixed-camera"
+            camera
+            position="0 1.6 0"
+            look-controls="enabled: true"
+            camera="active: true; fov: 80;"
+        ></a-entity>
 
         <!-- GLTF model fixed in the environment -->
         <a-entity
