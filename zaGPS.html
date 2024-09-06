@@ -90,6 +90,58 @@
         <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
         <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
+
+    <!-- Control Buttons for Position, Rotation, and Altitude -->
+    <div class="controls">
+        <h3>Move Model</h3>
+        <div>
+            <button onclick="changeLatitude(0.00005)">Lat +</button>
+            <button onclick="changeLatitude(-0.00005)">Lat -</button>
+        </div>
+        <div>
+            <button onclick="changeLongitude(0.00005)">Lon +</button>
+            <button onclick="changeLongitude(-0.00005)">Lon -</button>
+        </div>
+        <div>
+            <button onclick="changeAltitude(1)">Alt +</button>
+            <button onclick="changeAltitude(-1)">Alt -</button>
+        </div>
+        <h3>Rotate Model</h3>
+        <div>
+            <button onclick="changeRotation(5)">Rot +</button>
+            <button onclick="changeRotation(-5)">Rot -</button>
+        </div>
+    </div>
+
+    <!-- Scale Control Buttons at the Top -->
+    <div class="scale-controls">
+        <button onclick="changeScale(0.1)">Scale +</button>
+        <button onclick="changeScale(-0.1)">Scale -</button>
+    </div>
+
+    <!-- Separate GPS Location Buttons -->
+    <div class="location-controls">
+        <button onclick="useSpecifiedCoordinates()">Specified Coordinates</button>
+        <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
+    </div>
+
+    <!-- Input window for latitude and longitude, with minimization -->
+    <div class="input-controls">
+        <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
+        <div id="input-coordinates-content">
+            <h3>Model Coordinates</h3>
+            <label for="latitude-input">Latitude:</label>
+            <input type="number" id="latitude-input" step="0.000001" value="46.559173" />
+            <label for="longitude-input">Longitude:</label>
+            <input type="number" id="longitude-input" step="0.000001" value="15.640122" />
+            <label for="altitude-input">Altitude:</label>
+            <input type="number" id="altitude-input" step="1" value="0" />
+            <button onclick="updateModelCoordinates()">Set Coordinates</button>
+            <h3>Device Coordinates</h3>
+            <p id="device-coordinates">Latitude: , Longitude: </p>
+        </div>
+    </div>
+
     <script>
     let latitude = 46.369833;
     let longitude = 15.631938;
