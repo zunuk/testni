@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js Model with Toggle and Controls</title>
+    <title>A-Frame AR.js Model at GPS Location</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -43,17 +43,9 @@
             padding: 10px;
             border-radius: 5px;
         }
-        .toggle-controls {
-            position: absolute;
-            top: 100px;
-            right: 10px;
-            background-color: rgba(255, 255, 255, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-        }
         .input-controls {
             position: absolute;
-            top: 150px;
+            top: 100px;
             right: 10px;
             background-color: rgba(255, 255, 255, 0.7);
             padding: 10px;
@@ -73,19 +65,21 @@
 </head>
 <body>
     <a-scene
-        embedded
+        vr-mode-ui="enabled: false"
         arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+        embedded
+        renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
-        <!-- Camera for AR, ensure no zoom and default behavior -->
-        <a-camera gps-new-camera="gpsMinDistance: 10;" position="0 1.6 0"></a-camera>
+        <!-- New location-based GPS camera -->
+        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
 
-        <!-- GLTF model for both modes -->
+        <!-- GLTF model placed at GPS coordinates -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            position="0 0 0" <!-- This will change dynamically based on mode -->
+            gps-new-entity-place="latitude: 0; longitude: 0;" <!-- Set to 0 initially, will update to current location -->
+            rotation="0 8 0"
             scale="1 1 1"
-            rotation="0 45 0"
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -129,79 +123,51 @@
         <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
     </div>
 
-    <!-- Toggle Button to switch between modes -->
-    <div class="toggle-controls">
-        <button id="toggleModeButton" onclick="toggleMode()">Switch to Location-Based</button>
-    </div>
-
     <!-- Input window for latitude and longitude, with minimization -->
     <div class="input-controls">
         <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
         <div id="input-coordinates-content">
             <h3>Model Coordinates</h3>
-            <p id="model-coordinates">Latitude: , Longitude: </p>
+            <label for="latitude-input">Latitude:</label>
+            <input type="number" id="latitude-input" step="0.000001" />
+            <label for="longitude-input">Longitude:</label>
+            <input type="number" id="longitude-input" step="0.000001" />
+            <button onclick="updateModelCoordinates()">Set Coordinates</button>
             <h3>Device Coordinates</h3>
             <p id="device-coordinates">Latitude: , Longitude: </p>
         </div>
     </div>
 
     <script>
-        let isLocationBased = false;
-        let latitude = 46.559082;
-        let longitude = 15.643159;
-        let rotation = 8;
-        let scale = 1;
+        let latitude = null;
+        let longitude = null;
+        let deviceLatitude = null;
+        let deviceLongitude = null;
+        let rotation = 8; // Initial rotation (heading)
+        let scale = 1;    // Original size scale (no scaling for precision)
         let altitude = 0;
 
         const modelEntity = document.querySelector('#model');
-        const modelCoordinatesDisplay = document.getElementById('model-coordinates');
+        const latitudeInput = document.getElementById('latitude-input');
+        const longitudeInput = document.getElementById('longitude-input');
         const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
-        function setLocationBasedMode() {
-            // Set the model to display based on GPS coordinates
-            navigator.geolocation.getCurrentPosition((position) => {
-                const deviceLatitude = position.coords.latitude;
-                const deviceLongitude = position.coords.longitude;
-
-                // Use gps-new-entity-place to place the model at the current GPS location
-                modelEntity.setAttribute('gps-new-entity-place', `latitude: ${deviceLatitude}; longitude: ${deviceLongitude}`);
-                modelEntity.setAttribute('position', '0 0 0'); // Reset the position
-                modelCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-                deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-                console.log(`Switched to Location-Based: Latitude=${deviceLatitude}, Longitude=${deviceLongitude}`);
-            }, (error) => {
-                console.error("Error accessing current location: " + error.message);
-                alert("Error accessing current location: " + error.message);
-            });
+        function updatePosition() {
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}`);
         }
 
-        function setCameraBasedMode() {
-            // Remove the gps-new-entity-place and fix the model in the environment
-            modelEntity.removeAttribute('gps-new-entity-place');
-            modelEntity.setAttribute('position', '0 0 -3');  // Place the model 3 meters in front of the camera
-            console.log('Switched to Camera-Based Mode');
-        }
-
-        function toggleMode() {
-            if (isLocationBased) {
-                // Switch to camera-based mode
-                setCameraBasedMode();
-                document.getElementById('toggleModeButton').innerText = 'Switch to Location-Based';
-            } else {
-                // Switch to location-based mode
-                setLocationBasedMode();
-                document.getElementById('toggleModeButton').innerText = 'Switch to Camera-Based';
-            }
-            isLocationBased = !isLocationBased;
+        function updateRotation() {
+            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
         }
 
         function changeLatitude(step) {
-            latitude += step / 111320; // 1 meter ≈ 1/111320 degrees
+            latitude += step / 111320;
             updatePosition();
         }
 
         function changeLongitude(step) {
-            longitude += step / (111320 * Math.cos(latitude * (Math.PI / 180))); // Adjust for latitude
+            longitude += step / (111320 * Math.cos(latitude * (Math.PI / 180)));
             updatePosition();
         }
 
@@ -212,7 +178,7 @@
 
         function changeRotation(step) {
             rotation += step;
-            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+            updateRotation();
         }
 
         function changeScale(step) {
@@ -223,13 +189,20 @@
         function useSpecifiedCoordinates() {
             latitude = 46.559082;
             longitude = 15.643159;
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
             updatePosition();
         }
 
         function useCurrentCoordinates() {
             navigator.geolocation.getCurrentPosition((position) => {
-                latitude = position.coords.latitude;
-                longitude = position.coords.longitude;
+                deviceLatitude = position.coords.latitude;
+                deviceLongitude = position.coords.longitude;
+                latitude = deviceLatitude;
+                longitude = deviceLongitude;
+                latitudeInput.value = latitude;
+                longitudeInput.value = longitude;
+                deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 updatePosition();
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
@@ -237,9 +210,11 @@
             });
         }
 
-        function updatePosition() {
-            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
-            modelCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+        function updateModelCoordinates() {
+            latitude = parseFloat(latitudeInput.value);
+            longitude = parseFloat(longitudeInput.value);
+            console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}`);
+            updatePosition();
         }
 
         function toggleInputWindow() {
@@ -247,8 +222,10 @@
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Start with camera-based mode
-        setCameraBasedMode();
+        // Automatically use current GPS coordinates to display the model on load
+        window.onload = function () {
+            useCurrentCoordinates(); // Fetch current location on load
+        };
     </script>
 </body>
 </html>
