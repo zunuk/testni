@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Frame AR.js Model Control</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <a-scene
+        vr-mode-ui="enabled: false"
+        arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+        embedded
+        renderer="logarithmicDepthBuffer: true; antialias: true;"
+    >
+        <!-- AR Camera -->
+        <a-camera id="camera" position="0 0 0" look-controls></a-camera>
+
+        <!-- GLTF model fixed in the environment -->
+        <a-entity
+            id="model"
+            gltf-model="https://zunuk.github.io/testni/Finito1.glb"
+            rotation="0 8 0"
+            scale="1 1 1"
+            position="0 0 0"
+        ></a-entity>
+
+        <!-- Lighting Setup -->
+        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
+        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
+    </a-scene>
+
+    <!-- Control Buttons for Position and Rotation -->
+    <div class="controls">
+        <h3>Move Model</h3>
+        <div>
+            <button onclick="changePosition('x', 0.5)">X +</button>
+            <button onclick="changePosition('x', -0.5)">X -</button>
+        </div>
+        <div>
+            <button onclick="changePosition('y', 0.5)">Y +</button>
+            <button onclick="changePosition('y', -0.5)">Y -</button>
+        </div>
+        <div>
+            <button onclick="changePosition('z', 0.5)">Z +</button>
+            <button onclick="changePosition('z', -0.5)">Z -</button>
+        </div>
+
+        <h3>Rotate Model</h3>
+        <div>
+            <button onclick="changeRotation(1)">Rot +</button>
+            <button onclick="changeRotation(-1)">Rot -</button>
+        </div>
+    </div>
+
+    <script>
+        const modelEntity = document.querySelector('#model');
+        let position = { x: 0, y: 0, z: 0 };
+        let rotation = 8;
+
+        // Update the model's position
+        function changePosition(axis, value) {
+            position[axis] += value;
+            modelEntity.setAttribute('position', `${position.x} ${position.y} ${position.z}`);
+            console.log(`Position: x=${position.x}, y=${position.y}, z=${position.z}`);
+        }
+
+        // Update the model's rotation around the vertical axis
+        function changeRotation(value) {
+            rotation += value;
+            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+            console.log(`Rotation: ${rotation}`);
+        }
+
+        // Monitor and update camera angle and distance
+        function updateModelView() {
+            const camera = document.querySelector('#camera');
+            const modelPosition = modelEntity.object3D.position;
+            const cameraPosition = camera.object3D.position;
+            const distance = cameraPosition.distanceTo(modelPosition);
+
+            // Apply additional transformation if needed
+            console.log(`Camera distance to model: ${distance}`);
+            // Perform other updates based on camera distance or angle if required.
+        }
+
+        // Continuously monitor the camera viewing angle and distance
+        setInterval(updateModelView, 100);
+    </script>
+</body>
+</html>
