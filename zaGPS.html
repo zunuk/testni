@@ -201,7 +201,9 @@
                 latitudeInput.value = deviceLatitude;
                 longitudeInput.value = deviceLongitude;
                 deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-                updatePosition(); // Don't update model position, only device coordinates shown
+                latitude = deviceLatitude;
+                longitude = deviceLongitude;
+                updatePosition(); // Posodobi pozicijo modela
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
