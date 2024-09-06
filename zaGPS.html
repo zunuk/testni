@@ -142,50 +142,78 @@
         </div>
     </div>
 
-    <script>
+<script>
     let latitude = 46.369833;
     let longitude = 15.631938;
     let rotation = 8;  // Initial rotation for the model
     let scale = 1;     // Scale for the model
-    
-    let modelEntity;
-    let altitudeInput;
 
-    // Update the model's altitude, scale, and rotation
+    let modelEntity;
+    let latitudeInput, longitudeInput, altitudeInput, deviceCoordinatesDisplay;
+
+    // Simplified update function - Focus only on the key attributes (latitude, longitude, altitude, rotation)
     function updateModelAttributes() {
         if (modelEntity) {
-            // Only update altitude, rotation, and scale (let AR.js handle GPS coordinates)
-            modelEntity.setAttribute('position', `0 ${altitude} 0`);
-            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
-            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+            // Update GPS coordinates (handled by AR.js)
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
 
-            console.log(`Model Updated: Altitude=${altitude}, Rotation=${rotation}, Scale=${scale}`);
+            // Update altitude and rotation (handled manually)
+            modelEntity.setAttribute('position', `0 ${altitude} 0`);
+            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+            
+            console.log(`Model Updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}, Rotation=${rotation}`);
         }
     }
 
-   
+    // Use latitude and longitude inputs from the user (manual updates)
+    function useSpecifiedCoordinates() {
+        latitude = parseFloat(latitudeInput.value);
+        longitude = parseFloat(longitudeInput.value);
+        altitude = parseFloat(altitudeInput.value);
 
+        updateModelAttributes();
+        console.log("Specified coordinates set.");
+    }
 
-    // Initialize the model and inputs after the window loads
+    // Load current device GPS coordinates
+    function useCurrentCoordinates() {
+        navigator.geolocation.getCurrentPosition((position) => {
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
+
+            updateModelAttributes();
+            console.log(`Current device coordinates: Latitude=${latitude}, Longitude=${longitude}`);
+        }, (error) => {
+            console.error(`Error accessing location: ${error.message}`);
+            alert(`Error accessing location: ${error.message}`);
+        });
+    }
+
+    // Initialize the model and inputs
     window.onload = function () {
-        // Find the model and input fields
+        // Find model and input fields
         modelEntity = document.querySelector('#model');
+        latitudeInput = document.getElementById('latitude-input');
+        longitudeInput = document.getElementById('longitude-input');
         altitudeInput = document.getElementById('altitude-input');
+        deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
-        // Ensure the model is loaded before applying changes
+        // Check if the model is properly loaded before making changes
         if (modelEntity) {
             modelEntity.addEventListener('model-loaded', () => {
                 console.log('Model loaded successfully');
-                updateModelAttributes();  // Apply initial attributes after model is fully loaded
+                updateModelAttributes();  // Only apply updates after the model is fully loaded
+            });
+            
+            modelEntity.addEventListener('gps-entity-place-update', (event) => {
+                console.log(`Model distance updated: ${event.detail.distance} meters`);
             });
         } else {
             console.error('Model entity not found!');
         }
     };
 </script>
-
-
-
-  
 </body>
 </html>
