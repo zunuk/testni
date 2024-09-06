@@ -45,7 +45,7 @@
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             rotation="0 8 0"
             scale="1 1 1"
-            position="0 0 -5"  <!-- Keep the model fixed at this position -->
+            position="0 0 0"  <!-- Keep the model fixed at this position -->
             static-body   <!-- Makes the model static in space -->
         ></a-entity>
 
@@ -87,7 +87,7 @@
 
     <script>
         const modelEntity = document.querySelector('#model');
-        let position = { x: 0, y: 0, z: -5 }; // Initial fixed position in world space
+        let position = { x: 0, y: 0, z: 0 }; // Initial fixed position in world space
         let rotation = 8;
         let scale = 1;
 
