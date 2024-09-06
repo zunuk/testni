@@ -237,6 +237,7 @@
 
     // Initialize model and input fields
     window.onload = function () {
+        // Initialize the model and input fields after the window has loaded
         modelEntity = document.querySelector('#model');
         latitudeInput = document.getElementById('latitude-input');
         longitudeInput = document.getElementById('longitude-input');
@@ -247,8 +248,8 @@
             // Wait for the model to load before making changes
             modelEntity.addEventListener('model-loaded', () => {
                 console.log('Model loaded successfully');
-                updatePosition();
-                updateRotation();
+                updatePosition(); // Initialize position once the model is loaded
+                updateRotation(); // Initialize rotation once the model is loaded
             });
 
             // Handle position update when GPS data changes (distance-based scaling is handled automatically by AR.js)
@@ -260,7 +261,6 @@
         }
     };
 </script>
-
   
 </body>
 </html>
