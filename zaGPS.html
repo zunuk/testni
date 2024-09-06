@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame AR.js with Full Controls and Toggle</title>
+    <title>A-Frame AR.js Model with Toggle and Controls</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
@@ -74,17 +74,18 @@
 <body>
     <a-scene
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: false;"
+        arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
     >
-        <!-- Camera for AR -->
-        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
+        <!-- Camera for AR, ensure no zoom and default behavior -->
+        <a-camera gps-new-camera="gpsMinDistance: 10;" position="0 1.6 0"></a-camera>
 
-        <!-- GLTF model with both location and static options -->
+        <!-- GLTF model for both modes -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            rotation="0 45 0"
+            position="0 0 0" <!-- This will change dynamically based on mode -->
             scale="1 1 1"
+            rotation="0 45 0"
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -162,9 +163,9 @@
                 const deviceLatitude = position.coords.latitude;
                 const deviceLongitude = position.coords.longitude;
 
-                // Update model coordinates and set GPS mode
+                // Use gps-new-entity-place to place the model at the current GPS location
                 modelEntity.setAttribute('gps-new-entity-place', `latitude: ${deviceLatitude}; longitude: ${deviceLongitude}`);
-                modelEntity.setAttribute('position', '0 0 0');
+                modelEntity.setAttribute('position', '0 0 0'); // Reset the position
                 modelCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 console.log(`Switched to Location-Based: Latitude=${deviceLatitude}, Longitude=${deviceLongitude}`);
@@ -175,9 +176,9 @@
         }
 
         function setCameraBasedMode() {
-            // Set the model to a fixed position in the environment (relative to AR scene, not phone)
+            // Remove the gps-new-entity-place and fix the model in the environment
             modelEntity.removeAttribute('gps-new-entity-place');
-            modelEntity.setAttribute('position', '0 0 -5');  // Place the model 5 meters in front of the camera, fixed in the environment
+            modelEntity.setAttribute('position', '0 0 -3');  // Place the model 3 meters in front of the camera
             console.log('Switched to Camera-Based Mode');
         }
 
