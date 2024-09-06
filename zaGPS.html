@@ -71,15 +71,16 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 0.1;"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122"
+            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;"
             rotation="0 8 0"
             scale="1 1 1"
+            position="0 0 0"  <!-- Altitude controlled by y position -->
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -143,7 +144,7 @@
     <script>
         let latitude = 46.559173;
         let longitude = 15.640122;
-        let altitude = 0; // Altitude for the model
+        let altitude = 0; // Altitude for the model (handled by y position in "position")
         let rotation = 8; // Initial rotation (heading)
         let scale = 1;
 
@@ -154,7 +155,8 @@
         const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
         function updatePosition() {
-            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude}; altitude: ${altitude};`);
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            modelEntity.setAttribute('position', `0 ${altitude} 0`); // Adjust altitude through the y position
             console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
         }
 
