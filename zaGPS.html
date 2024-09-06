@@ -147,69 +147,67 @@
     let altitude = 0; // Altitude for the model (handled by y position in "position")
     let rotation = 8; // Initial rotation (heading)
     let scale = 1; // Initial scale
+
     let modelEntity;
     let latitudeInput;
     let longitudeInput;
     let altitudeInput;
     let deviceCoordinatesDisplay;
 
-    // Ensure the model is correctly placed in real-world coordinates
-    function updatePosition() {
+    // Update the model's GPS position, scale, and rotation dynamically
+    function updateModelAttributes() {
         if (modelEntity) {
+            // Update the GPS position (latitude, longitude)
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            
+            // Update the altitude (y position), scale, and rotation
             modelEntity.setAttribute('position', `0 ${altitude} 0`);
-            console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
-        }
-    }
-
-    function updateRotation() {
-        if (modelEntity) {
+            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
             modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
-            console.log(`Rotation updated: Y-axis=${rotation}`);
+
+            console.log(`Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}, Scale=${scale}, Rotation=${rotation}`);
         }
     }
 
+    // Change the latitude
     function changeLatitude(step) {
         latitude += step;
         latitudeInput.value = latitude;
-        updatePosition();
+        updateModelAttributes();
     }
 
+    // Change the longitude
     function changeLongitude(step) {
         longitude += step;
         longitudeInput.value = longitude;
-        updatePosition();
+        updateModelAttributes();
     }
 
+    // Change the altitude
     function changeAltitude(step) {
         altitude += step;
         altitudeInput.value = altitude;
-        updatePosition();
-        console.log(`Altitude updated: ${altitude}`);
+        updateModelAttributes();
     }
 
+    // Change the rotation
     function changeRotation(step) {
         rotation += step;
-        updateRotation();
+        updateModelAttributes();
     }
 
+    // Change the scale
     function changeScale(step) {
-        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
-        if (modelEntity) {
-            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
-            console.log(`Model scale updated: ${scale}`);
-        }
+        scale = Math.max(0.1, scale + step); // Prevent scale from going below 0.1
+        updateModelAttributes();
     }
 
-    // Update input fields when "Specified Coordinates" button is pressed
+    // Use specified coordinates from input fields
     function useSpecifiedCoordinates() {
-        latitudeInput.value = 46.369833;
-        longitudeInput.value = 15.631938;
-        altitudeInput.value = 0;
         latitude = parseFloat(latitudeInput.value);
         longitude = parseFloat(longitudeInput.value);
         altitude = parseFloat(altitudeInput.value);
-        updatePosition();
+        updateModelAttributes();
         console.log("Specified coordinates set.");
     }
 
@@ -223,28 +221,20 @@
             deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
             latitude = deviceLatitude;
             longitude = deviceLongitude;
-            updatePosition(); // Move the model to the current GPS coordinates
+            updateModelAttributes(); // Move the model to the current GPS coordinates
         }, (error) => {
             console.error("Error accessing current location: " + error.message);
             alert("Error accessing current location: " + error.message);
         });
     }
 
-    // Update model's position based on manually entered coordinates
-    function updateModelCoordinates() {
-        latitude = parseFloat(latitudeInput.value);
-        longitude = parseFloat(longitudeInput.value);
-        altitude = parseFloat(altitudeInput.value);
-        updatePosition();
-        console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
-    }
-
+    // Toggle input window visibility
     function toggleInputWindow() {
         const content = document.getElementById('input-coordinates-content');
         content.style.display = content.style.display === 'none' ? 'block' : 'none';
     }
 
-    // Initialize model and input fields
+    // Initialize model and input fields after window loads
     window.onload = function () {
         modelEntity = document.querySelector('#model');
         latitudeInput = document.getElementById('latitude-input');
@@ -253,14 +243,13 @@
         deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
         if (modelEntity) {
-            // Wait for the model to load before making changes
+            // Wait for the model to load before applying changes
             modelEntity.addEventListener('model-loaded', () => {
                 console.log('Model loaded successfully');
-                updatePosition(); // Initialize position once the model is loaded
-                updateRotation(); // Initialize rotation once the model is loaded
+                updateModelAttributes(); // Initialize attributes once the model is loaded
             });
 
-            // Handle position update when GPS data changes (distance-based scaling is handled automatically by AR.js)
+            // Log distance to model when GPS updates
             modelEntity.addEventListener('gps-entity-place-update', (event) => {
                 console.log(`Distance to model: ${event.detail.distance} meters`);
             });
@@ -269,6 +258,7 @@
         }
     };
 </script>
+
 
   
 </body>
