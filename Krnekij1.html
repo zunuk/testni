@@ -1,37 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A-Frame GLB Model Test</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+<title>AR.js A-Frame Location-based</title>
+<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
+<script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
 </head>
 <body>
-    <a-scene>
-        <!-- GLTF model -->
-        <a-entity
-            gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            scale="1 1 1"
-            position="0 0 0"
-        ></a-entity>
-
-        <!-- Sky background -->
-        <a-sky color="#ECECEC"></a-sky>
-
-        <!-- Ambient light for soft, uniform lighting -->
-        <a-light type="ambient" color="#FFF" intensity="0.4"></a-light>
-
-        <!-- Hemispheric light to simulate sky and ground light -->
-        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="0.8" position="0 2 0"></a-light>
-
-        <!-- Directional light 1 (simulating sunlight) -->
-        <a-light type="directional" color="#FFF" intensity="1" position="-2 4 -1" castShadow="true"></a-light>
-
-        <!-- Directional light 2 (fill light from opposite direction) -->
-        <a-light type="directional" color="#FFF" intensity="0.5" position="2 4 1"></a-light>
-
-        <!-- Directional light 3 (backlight to soften shadows) -->
-        <a-light type="directional" color="#FFF" intensity="0.3" position="0 3 -4"></a-light>
-    </a-scene>
+<a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
+    <a-camera gps-new-camera='gpsMinDistance: 0.25'></a-camera>
+    <a-entity material='color: red' geometry='primitive: box' gps-new-entity-place="latitude: 46.559168; longitude: 15.640107" scale="10 10 10"></a-entity>
+</a-scene>
 </body>
 </html>
