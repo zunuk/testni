@@ -83,7 +83,7 @@
             gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;"
             rotation="0 8 0"
             scale="1 1 1"
-            position="0 0 0"
+            visible="false" <!-- Initially hidden, becomes visible only when in range -->
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -158,6 +158,7 @@
         const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
         function updatePosition() {
+            // Ensure the model's GPS location is properly updated
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
             modelEntity.setAttribute('position', `0 ${altitude} 0`); // Adjust altitude through the y position
             console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
@@ -224,6 +225,7 @@
             latitude = parseFloat(latitudeInput.value);
             longitude = parseFloat(longitudeInput.value);
             altitude = parseFloat(altitudeInput.value);
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
             console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
             updatePosition();
         }
@@ -232,6 +234,16 @@
             const content = document.getElementById('input-coordinates-content');
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
+
+        // Ensure model visibility is controlled based on proximity
+        modelEntity.addEventListener('gps-entity-place-update', (event) => {
+            const distance = event.detail.distance;
+            if (distance < 20) {
+                modelEntity.setAttribute('visible', 'true');
+            } else {
+                modelEntity.setAttribute('visible', 'false');
+            }
+        });
 
         window.onload = function () {
             updatePosition(); // Use initial GPS coordinates to load the model
