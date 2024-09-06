@@ -72,7 +72,7 @@
     >
         <!-- New location-based GPS camera -->
         <a-camera
-            gps-new-camera="gpsMinDistance: 0;"
+            gps-new-camera="gpsMinDistance: 0.25;"
             id="camera"
         ></a-camera>
 
@@ -80,7 +80,7 @@
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;"
+            gps-new-entity-place="latitude: 46.369808; longitude: 15.631945;"
             rotation="0 8 0"
             scale="1 1 1"
             visible="false" <!-- Initially hidden, becomes visible only when in range -->
@@ -133,9 +133,9 @@
         <div id="input-coordinates-content">
             <h3>Model Coordinates</h3>
             <label for="latitude-input">Latitude:</label>
-            <input type="number" id="latitude-input" step="0.000001" value="46.559173" />
+            <input type="number" id="latitude-input" step="0.000001" value="46.369808" />
             <label for="longitude-input">Longitude:</label>
-            <input type="number" id="longitude-input" step="0.000001" value="15.640122" />
+            <input type="number" id="longitude-input" step="0.000001" value="15.631945" />
             <label for="altitude-input">Altitude:</label>
             <input type="number" id="altitude-input" step="1" value="0" />
             <button onclick="updateModelCoordinates()">Set Coordinates</button>
@@ -145,8 +145,8 @@
     </div>
 
     <script>
-        let latitude = 46.559173;
-        let longitude = 15.640122;
+        let latitude = 46.369808;
+        let longitude = 15.631945;
         let altitude = 0; // Altitude for the model (handled by y position in "position")
         let rotation = 8; // Initial rotation (heading)
         let scale = 1;
@@ -197,14 +197,16 @@
             modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
         }
 
+        // Fix: When the "Specified Coordinates" button is pressed, update the input fields
         function useSpecifiedCoordinates() {
-            latitude = parseFloat(latitudeInput.value) || latitude;
-            longitude = parseFloat(longitudeInput.value) || longitude;
-            altitude = parseFloat(altitudeInput.value) || altitude;
-            updatePosition();
-            console.log("Specified coordinates used.");
+            // Update input fields with specified GPS values (example values, update these as needed)
+            latitudeInput.value = 46.369808;
+            longitudeInput.value = 15.631945;
+            altitudeInput.value = 0;
+            console.log("Specified coordinates loaded in input fields.");
         }
 
+        // Use current GPS coordinates of the device
         function useCurrentCoordinates() {
             navigator.geolocation.getCurrentPosition((position) => {
                 const deviceLatitude = position.coords.latitude;
@@ -221,6 +223,7 @@
             });
         }
 
+        // Update model's position based on entered coordinates
         function updateModelCoordinates() {
             latitude = parseFloat(latitudeInput.value);
             longitude = parseFloat(longitudeInput.value);
