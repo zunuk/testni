@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A-Frame AR.js Model at GPS Location</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
@@ -71,7 +71,7 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 0.5;"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
 
         <!-- GLTF model placed at initial coordinates -->
         <a-entity
@@ -133,9 +133,8 @@
             <label for="longitude-input">Longitude:</label>
             <input type="number" id="longitude-input" step="0.000001" />
             <button onclick="updateModelCoordinates()">Set Coordinates</button>
-            <h3>Current Device Coordinates</h3>
+            <h3>Device Coordinates</h3>
             <p id="device-coordinates">Latitude: , Longitude: </p>
-            <p id="model-coordinates">Latitude: 46.559082, Longitude: 15.643159</p>
         </div>
     </div>
 
@@ -152,11 +151,9 @@
         const latitudeInput = document.getElementById('latitude-input');
         const longitudeInput = document.getElementById('longitude-input');
         const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
-        const modelCoordinatesDisplay = document.getElementById('model-coordinates');
 
         function updatePosition() {
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
-            modelCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
             console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}`);
         }
 
@@ -224,9 +221,6 @@
             const content = document.getElementById('input-coordinates-content');
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
-
-        // Set initial model coordinates display
-        modelCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
 
         // Set input fields to current GPS coordinates on load
         window.onload = function () {
