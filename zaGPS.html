@@ -145,9 +145,9 @@
 <script>
     let latitude = 46.369833;
     let longitude = 15.631938;
-    let altitude = 0; // Altitude for the model (handled by y position in "position")
-    let rotation = 8; // Initial rotation (heading)
-    let scale = 1; // Initial scale
+    let altitude = 0;  // Altitude for the model (handled by y position in "position")
+    let rotation = 8;  // Initial rotation for the model
+    let scale = 1;     // Scale for the model
 
     let modelEntity;
     let latitudeInput;
@@ -155,84 +155,52 @@
     let altitudeInput;
     let deviceCoordinatesDisplay;
 
-    // Update the model's GPS position, scale, and rotation dynamically
+    // Update the model's altitude, scale, and rotation (let AR.js handle latitude and longitude)
     function updateModelAttributes() {
         if (modelEntity) {
-            // Update the GPS position (latitude, longitude)
-            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
-            
-            // Update the altitude (y position), scale, and rotation
-            modelEntity.setAttribute('position', `0 ${altitude} 0`);
+            // Let AR.js handle GPS latitude and longitude
+            // We only manually update the y-position (altitude), scale, and rotation
+
+            modelEntity.setAttribute('position', `0 ${altitude} 0`); // Altitude (y-axis)
             modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
             modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
 
-            console.log(`Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}, Scale=${scale}, Rotation=${rotation}`);
+            console.log(`Attributes updated: Altitude=${altitude}, Scale=${scale}, Rotation=${rotation}`);
         }
     }
 
-    // Change the latitude
-    function changeLatitude(step) {
-        latitude += step;
-        latitudeInput.value = latitude;
-        updateModelAttributes();
-    }
-
-    // Change the longitude
-    function changeLongitude(step) {
-        longitude += step;
-        longitudeInput.value = longitude;
-        updateModelAttributes();
-    }
-
-    // Change the altitude
+    // Change altitude by a step (update the y-axis position)
     function changeAltitude(step) {
         altitude += step;
         altitudeInput.value = altitude;
         updateModelAttributes();
     }
 
-    // Change the rotation
+    // Change rotation by a step
     function changeRotation(step) {
         rotation += step;
         updateModelAttributes();
     }
 
-    // Change the scale
+    // Change scale by a step
     function changeScale(step) {
-        scale = Math.max(0.1, scale + step); // Prevent scale from going below 0.1
+        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
         updateModelAttributes();
-    }
-
-    // Use specified coordinates from input fields
-    function useSpecifiedCoordinates() {
-        latitude = parseFloat(latitudeInput.value);
-        longitude = parseFloat(longitudeInput.value);
-        altitude = parseFloat(altitudeInput.value);
-        updateModelAttributes();
-        console.log("Specified coordinates set.");
     }
 
     // Use current GPS coordinates of the device
     function useCurrentCoordinates() {
         navigator.geolocation.getCurrentPosition((position) => {
-            const deviceLatitude = position.coords.latitude;
-            const deviceLongitude = position.coords.longitude;
-            latitudeInput.value = deviceLatitude;
-            longitudeInput.value = deviceLongitude;
-            deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-            latitude = deviceLatitude;
-            longitude = deviceLongitude;
-            updateModelAttributes(); // Move the model to the current GPS coordinates
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+            latitudeInput.value = latitude;
+            longitudeInput.value = longitude;
+            deviceCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+            console.log(`Current device coordinates: Latitude=${latitude}, Longitude=${longitude}`);
         }, (error) => {
             console.error("Error accessing current location: " + error.message);
             alert("Error accessing current location: " + error.message);
         });
-    }
-
-    // Toggle input window visibility
-    function toggleInputWindow() {
-        const content = document.getElementById('input-coordinates-content');
-        content.style.display = content.style.display === 'none' ? 'block' : 'none';
     }
 
     // Initialize model and input fields after window loads
@@ -259,6 +227,7 @@
         }
     };
 </script>
+
 
 </body>
 </html>
