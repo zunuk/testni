@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
     <title>A-Frame AR.js Model at GPS Location</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
@@ -71,10 +70,7 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera
-            gps-new-camera="gpsMinDistance: 0;"
-            id="camera"
-        ></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 0;" id="camera"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
@@ -83,7 +79,7 @@
             gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;"
             rotation="0 8 0"
             scale="1 1 1"
-            visible="true" <!-- Initially visible for testing -->
+            visible="true"
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -157,8 +153,9 @@
         const altitudeInput = document.getElementById('altitude-input');
         const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
+        // Ensure the model is correctly placed in real-world coordinates and not stuck to the camera
         function updatePosition() {
-            // Ensure the model's GPS location is properly updated
+            // Correctly set the GPS coordinates of the model
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
             modelEntity.setAttribute('position', `0 ${altitude} 0`); // Adjust altitude through the y position
             console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
@@ -199,7 +196,6 @@
 
         // Fix: When the "Specified Coordinates" button is pressed, update the input fields
         function useSpecifiedCoordinates() {
-            // Update input fields with specified GPS values (example values, update these as needed)
             latitudeInput.value = 46.560000;
             longitudeInput.value = 15.641000;
             altitudeInput.value = 10;
@@ -233,8 +229,8 @@
             longitude = parseFloat(longitudeInput.value);
             altitude = parseFloat(altitudeInput.value);
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
             updatePosition();
-            console.log(`Model position set manually: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
         }
 
         function toggleInputWindow() {
@@ -242,15 +238,17 @@
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Ensure model visibility is controlled based on proximity
+        // Dynamically scale the model based on distance
+        function scaleModelBasedOnDistance(distance) {
+            const scaleFactor = Math.max(0.1, 20 / distance); // Scale down when far, scale up when near
+            modelEntity.setAttribute('scale', `${scaleFactor} ${scaleFactor} ${scaleFactor}`);
+            console.log(`Scaling model based on distance: ${distance} meters, scale: ${scaleFactor}`);
+        }
+
+        // Listen to GPS updates and scale the model based on distance to the camera
         modelEntity.addEventListener('gps-entity-place-update', (event) => {
             const distance = event.detail.distance;
-            console.log(`Distance to model: ${distance} meters`);
-            if (distance < 20) {
-                modelEntity.setAttribute('visible', 'true');
-            } else {
-                modelEntity.setAttribute('visible', 'false');
-            }
+            scaleModelBasedOnDistance(distance); // Dynamically scale based on distance
         });
 
         window.onload = function () {
