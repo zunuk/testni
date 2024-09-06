@@ -77,7 +77,7 @@
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-entity-place="latitude: 46.559173; longitude: 15.640122;"
+            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122; altitude: 0;"
             rotation="0 8 0"
             scale="1 1 1"
         ></a-entity>
@@ -89,7 +89,7 @@
         <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
-    <!-- Control Buttons for Position and Rotation -->
+    <!-- Control Buttons for Position, Rotation, and Altitude -->
     <div class="controls">
         <h3>Move Model</h3>
         <div>
@@ -99,6 +99,10 @@
         <div>
             <button onclick="changeLongitude(0.00005)">Lon +</button>
             <button onclick="changeLongitude(-0.00005)">Lon -</button>
+        </div>
+        <div>
+            <button onclick="changeAltitude(1)">Alt +</button>
+            <button onclick="changeAltitude(-1)">Alt -</button>
         </div>
         <h3>Rotate Model</h3>
         <div>
@@ -125,9 +129,11 @@
         <div id="input-coordinates-content">
             <h3>Model Coordinates</h3>
             <label for="latitude-input">Latitude:</label>
-            <input type="number" id="latitude-input" step="0.000001" />
+            <input type="number" id="latitude-input" step="0.000001" value="46.559173" />
             <label for="longitude-input">Longitude:</label>
-            <input type="number" id="longitude-input" step="0.000001" />
+            <input type="number" id="longitude-input" step="0.000001" value="15.640122" />
+            <label for="altitude-input">Altitude:</label>
+            <input type="number" id="altitude-input" step="1" value="0" />
             <button onclick="updateModelCoordinates()">Set Coordinates</button>
             <h3>Device Coordinates</h3>
             <p id="device-coordinates">Latitude: , Longitude: </p>
@@ -135,21 +141,21 @@
     </div>
 
     <script>
-        let latitude = 46.559173; // Set initial latitude
-        let longitude = 15.640122; // Set initial longitude
-        let deviceLatitude = null;
-        let deviceLongitude = null;
+        let latitude = 46.559173;
+        let longitude = 15.640122;
+        let altitude = 0; // Altitude for the model
         let rotation = 8; // Initial rotation (heading)
-        let scale = 1;    // Original size scale (no scaling for precision)
+        let scale = 1;
 
         const modelEntity = document.querySelector('#model');
         const latitudeInput = document.getElementById('latitude-input');
         const longitudeInput = document.getElementById('longitude-input');
+        const altitudeInput = document.getElementById('altitude-input');
         const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
         function updatePosition() {
-            modelEntity.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
-            console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}`);
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude}; altitude: ${altitude};`);
+            console.log(`Position updated: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
         }
 
         function updateRotation() {
@@ -166,6 +172,11 @@
             updatePosition();
         }
 
+        function changeAltitude(step) {
+            altitude += step;
+            updatePosition();
+        }
+
         function changeRotation(step) {
             rotation += step;
             updateRotation();
@@ -179,19 +190,18 @@
         function useSpecifiedCoordinates() {
             latitude = parseFloat(latitudeInput.value) || latitude;
             longitude = parseFloat(longitudeInput.value) || longitude;
+            altitude = parseFloat(altitudeInput.value) || altitude;
             updatePosition();
         }
 
         function useCurrentCoordinates() {
             navigator.geolocation.getCurrentPosition((position) => {
-                deviceLatitude = position.coords.latitude;
-                deviceLongitude = position.coords.longitude;
-                latitude = deviceLatitude;
-                longitude = deviceLongitude;
-                latitudeInput.value = latitude;
-                longitudeInput.value = longitude;
+                const deviceLatitude = position.coords.latitude;
+                const deviceLongitude = position.coords.longitude;
+                latitudeInput.value = deviceLatitude;
+                longitudeInput.value = deviceLongitude;
                 deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-                updatePosition();
+                updatePosition(); // Don't update model position, only device coordinates shown
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
@@ -201,7 +211,8 @@
         function updateModelCoordinates() {
             latitude = parseFloat(latitudeInput.value);
             longitude = parseFloat(longitudeInput.value);
-            console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}`);
+            altitude = parseFloat(altitudeInput.value);
+            console.log(`Manual update to: Latitude=${latitude}, Longitude=${longitude}, Altitude=${altitude}`);
             updatePosition();
         }
 
@@ -210,7 +221,6 @@
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Automatically use current GPS coordinates to display the model on load
         window.onload = function () {
             updatePosition(); // Use initial GPS coordinates to load the model
         };
