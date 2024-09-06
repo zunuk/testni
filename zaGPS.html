@@ -80,6 +80,7 @@
             gps-new-entity-place="latitude: 0; longitude: 0;" <!-- Set to 0 initially, will update to current location -->
             rotation="0 8 0"
             scale="1 1 1"
+            visible="false" <!-- Hide the model initially -->
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -192,6 +193,7 @@
             latitudeInput.value = latitude;
             longitudeInput.value = longitude;
             updatePosition();
+            modelEntity.setAttribute('visible', 'true'); // Make model visible
         }
 
         function useCurrentCoordinates() {
@@ -204,6 +206,7 @@
                 longitudeInput.value = longitude;
                 deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 updatePosition();
+                modelEntity.setAttribute('visible', 'true'); // Make model visible
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
