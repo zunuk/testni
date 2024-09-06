@@ -71,13 +71,13 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 0.1;"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122; altitude: 0;"
+            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122"
             rotation="0 8 0"
             scale="1 1 1"
         ></a-entity>
