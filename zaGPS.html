@@ -80,6 +80,7 @@
             gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;" <!-- Set initial position -->
             rotation="0 8 0"
             scale="1 1 1"
+            visible="false" <!-- Initially hidden until placed -->
         ></a-entity>
 
         <!-- Lighting Setup -->
@@ -192,6 +193,7 @@
             latitudeInput.value = latitude;
             longitudeInput.value = longitude;
             updatePosition();
+            modelEntity.setAttribute('visible', 'true'); // Make model visible
         }
 
         function useCurrentCoordinates() {
@@ -204,6 +206,7 @@
                 longitudeInput.value = longitude;
                 deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 updatePosition();
+                modelEntity.setAttribute('visible', 'true'); // Make model visible
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
                 alert("Error accessing current location: " + error.message);
@@ -221,6 +224,12 @@
             const content = document.getElementById('input-coordinates-content');
             content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
+
+        // Check for AR.js initialization and show model after GPS is ready
+        document.addEventListener("gps-entity-place-added", function (event) {
+            modelEntity.setAttribute('visible', 'true'); // Show model when GPS location is established
+            console.log("GPS entity place added.");
+        });
 
         // Automatically use current GPS coordinates to display the model on load
         window.onload = function () {
