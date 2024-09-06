@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>AR.js GPS Test</title>
+    <title>AR.js GPS Debug Test</title>
+    <!-- Load the correct version of AR.js with THREEx properly included -->
+    <script src="https://cdn.rawgit.com/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     </style>
@@ -13,26 +14,37 @@
     <a-scene 
         embedded 
         vr-mode-ui="enabled: false" 
-        arjs="sourceType: webcam; debugUIEnabled: false;"
+        arjs="sourceType: webcam; debugUIEnabled: true;" <!-- Enable AR.js Debug UI -->
     >
-        <!-- Add a GPS-based camera -->
+        <!-- GPS-based camera -->
         <a-camera gps-new-camera></a-camera>
 
-        <!-- Add a model fixed at a specific GPS location -->
+        <!-- Entity with fixed GPS location -->
         <a-entity 
-            gps-new-entity-place="latitude: 46.369811; longitude: 15.631914;" 
+            gps-new-entity-place="latitude: 46.559173; longitude: 15.640122;" 
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             scale="1 1 1"
             rotation="0 0 0"
-        >
-        </a-entity>
+        ></a-entity>
     </a-scene>
 
     <script>
-        // This is a minimal example to ensure that the model is placed at the given GPS coordinates
-        // Debugging: Check if AR.js is loading correctly and receiving GPS data
+        // Debugging function to capture GPS data
         window.onload = () => {
-            console.log("AR.js and GPS system initialized.");
+            console.log("Initializing AR.js and checking GPS.");
+
+            // Check for GPS data
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    console.log("Device GPS coordinates:");
+                    console.log("Latitude: " + position.coords.latitude);
+                    console.log("Longitude: " + position.coords.longitude);
+                }, function (error) {
+                    console.error("Error accessing GPS: ", error.message);
+                });
+            } else {
+                console.error("Geolocation is not supported by this browser.");
+            }
         };
     </script>
 </body>
