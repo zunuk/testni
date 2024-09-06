@@ -51,6 +51,20 @@
             padding: 10px;
             border-radius: 5px;
         }
+        .input-controls {
+            position: absolute;
+            top: 150px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #input-coordinates-content {
+            display: block;
+        }
         button {
             padding: 5px 10px;
             font-size: 14px;
@@ -62,7 +76,7 @@
         embedded
         arjs="sourceType: webcam; debugUIEnabled: false;"
     >
-        <!-- The camera for AR -->
+        <!-- Camera for AR -->
         <a-camera gps-new-camera="gpsMinDistance: 10;"></a-camera>
 
         <!-- GLTF model with both location and static options -->
@@ -119,6 +133,17 @@
         <button id="toggleModeButton" onclick="toggleMode()">Switch to Location-Based</button>
     </div>
 
+    <!-- Input window for latitude and longitude, with minimization -->
+    <div class="input-controls">
+        <button onclick="toggleInputWindow()">Toggle Coordinates Window</button>
+        <div id="input-coordinates-content">
+            <h3>Model Coordinates</h3>
+            <p id="model-coordinates">Latitude: , Longitude: </p>
+            <h3>Device Coordinates</h3>
+            <p id="device-coordinates">Latitude: , Longitude: </p>
+        </div>
+    </div>
+
     <script>
         let isLocationBased = false;
         let latitude = 46.559082;
@@ -128,6 +153,8 @@
         let altitude = 0;
 
         const modelEntity = document.querySelector('#model');
+        const modelCoordinatesDisplay = document.getElementById('model-coordinates');
+        const deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
         function setLocationBasedMode() {
             // Set the model to display based on GPS coordinates
@@ -135,9 +162,11 @@
                 const deviceLatitude = position.coords.latitude;
                 const deviceLongitude = position.coords.longitude;
 
-                // Use gps-new-entity-place to place the model at the current GPS location
+                // Update model coordinates and set GPS mode
                 modelEntity.setAttribute('gps-new-entity-place', `latitude: ${deviceLatitude}; longitude: ${deviceLongitude}`);
-                modelEntity.setAttribute('position', '0 0 0'); // Reset the position
+                modelEntity.setAttribute('position', '0 0 0');
+                modelCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
+                deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
                 console.log(`Switched to Location-Based: Latitude=${deviceLatitude}, Longitude=${deviceLongitude}`);
             }, (error) => {
                 console.error("Error accessing current location: " + error.message);
@@ -146,9 +175,9 @@
         }
 
         function setCameraBasedMode() {
-            // Set the model to a static position relative to the camera
+            // Set the model to a fixed position in the environment (relative to AR scene, not phone)
             modelEntity.removeAttribute('gps-new-entity-place');
-            modelEntity.setAttribute('position', '0 1.5 -3');  // Place the model 1.5m above and 3m in front of the camera
+            modelEntity.setAttribute('position', '0 0 -5');  // Place the model 5 meters in front of the camera, fixed in the environment
             console.log('Switched to Camera-Based Mode');
         }
 
@@ -209,7 +238,12 @@
 
         function updatePosition() {
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
-            modelEntity.setAttribute('position', '0 0 0');
+            modelCoordinatesDisplay.innerText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+        }
+
+        function toggleInputWindow() {
+            const content = document.getElementById('input-coordinates-content');
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
 
         // Start with camera-based mode
