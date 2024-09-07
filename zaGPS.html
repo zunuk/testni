@@ -155,7 +155,7 @@
     let yPositionInput;
     let deviceCoordinatesDisplay;
 
-    // Update the model's GPS position, rotation, and scale dynamically
+    // Update the model's GPS position, y-position, scale, and rotation dynamically
     // Only apply yPosition if it's needed to modify y-axis without affecting GPS-based x,z positions
     function updateModelAttributes() {
         if (modelEntity) {
@@ -173,6 +173,15 @@
 
             console.log(`Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Y-Position=${yPosition}, Scale=${scale}, Rotation=${rotation}`);
         }
+    }
+
+    // Update model coordinates from input fields
+    function updateModelCoordinates() {
+        latitude = parseFloat(latitudeInput.value);
+        longitude = parseFloat(longitudeInput.value);
+        yPosition = parseFloat(yPositionInput.value);  // This will only be used for manual y-axis control
+        updateModelAttributes();
+        console.log("Specified coordinates set.");
     }
 
     // Change the latitude
@@ -206,15 +215,6 @@
     function changeScale(step) {
         scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
         updateModelAttributes();
-    }
-
-    // Use specified coordinates from input fields
-    function useSpecifiedCoordinates() {
-        latitude = parseFloat(latitudeInput.value);
-        longitude = parseFloat(longitudeInput.value);
-        yPosition = parseFloat(yPositionInput.value);  // This will only be used for manual y-axis control
-        updateModelAttributes();
-        console.log("Specified coordinates set.");
     }
 
     // Use current GPS coordinates of the device
@@ -264,7 +264,6 @@
         }
     };
 </script>
-
 
 </body>
 </html>
