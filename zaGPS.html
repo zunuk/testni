@@ -145,7 +145,7 @@
 <script>
     let latitude = 46.369833;
     let longitude = 15.631938;
-    let yPosition = 0;  // This will only be used if manually adjusting the y-axis.
+    let yPosition = 0;  // This will only be used to adjust the y-axis
     let rotation = 8;   // Initial rotation for the model
     let scale = 1;      // Initial scale
 
@@ -156,17 +156,14 @@
     let deviceCoordinatesDisplay;
 
     // Update the model's GPS position, y-position, scale, and rotation dynamically
-    // Only apply yPosition if it's needed to modify y-axis without affecting GPS-based x,z positions
     function updateModelAttributes() {
         if (modelEntity) {
             // Update the GPS position (latitude, longitude)
             modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
 
-            // Optionally update the y-position (leave position to AR.js unless needed)
-            if (yPosition !== 0) {
-                modelEntity.setAttribute('position', `0 ${yPosition} 0`);
-            }
-            
+            // Update the y-position without affecting x and z (only modify y-axis)
+            modelEntity.object3D.position.y = yPosition;
+
             // Update the rotation and scale
             modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
             modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
@@ -198,7 +195,7 @@
         updateModelAttributes();
     }
 
-    // Change the y-position manually (only if needed)
+    // Change the y-position manually (only adjust y-axis)
     function changeYPosition(step) {
         yPosition += step;
         yPositionInput.value = yPosition;
@@ -264,6 +261,7 @@
         }
     };
 </script>
+
 
 </body>
 </html>
