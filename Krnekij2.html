@@ -57,56 +57,5 @@
         <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
-    <!-- Control Buttons for Scale and Rotation -->
-    <div class="controls">
-        <h3>Rotate Model</h3>
-        <div>
-            <button onclick="changeRotation(5)">Rotate +</button>
-            <button onclick="changeRotation(-5)">Rotate -</button>
-        </div>
-    </div>
-
-    <div class="scale-controls">
-        <button onclick="changeScale(0.1)">Scale +</button>
-        <button onclick="changeScale(-0.1)">Scale -</button>
-    </div>
-
-<script>
-    let scale = 1;
-    let rotation = 0;
-    let modelEntity;
-
-    // Scale adjustment
-    function changeScale(step) {
-        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
-        if (modelEntity) {
-            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
-            console.log('Scale set to:', scale);
-        }
-    }
-
-    // Rotation adjustment
-    function changeRotation(step) {
-        rotation += step;
-        if (modelEntity) {
-            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
-            console.log('Rotation set to:', rotation);
-        }
-    }
-
-    window.onload = function () {
-        modelEntity = document.querySelector('#model');
-        if (modelEntity) {
-            // Ensure the model has loaded
-            modelEntity.addEventListener('model-loaded', () => {
-                console.log('Model loaded successfully');
-                // Apply initial scale and rotation after the model is loaded
-                modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
-                modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
-            });
-        }
-    };
-</script>
-
 </body>
 </html>
