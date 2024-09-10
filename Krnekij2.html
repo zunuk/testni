@@ -44,7 +44,7 @@
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            position="0 0 -3"  <!-- Set this position to ensure the model is in view -->
+            position="0 0 0"  <!-- Set this position to ensure the model is in view -->
             scale="1 1 1"  <!-- Initial scale -->
             rotation="0 0 0"
             visible="true"
@@ -68,7 +68,7 @@
 
     <div class="scale-controls">
         <button onclick="changeScale(10)">Scale +</button> <!-- Increase scale by 10 -->
-        <button onclick="changeScale(-1)">Scale -</button> <!-- Decrease scale by 1 -->
+        <button onclick="changeScale(-10)">Scale -</button> <!-- Decrease scale by 1 -->
     </div>
 
 <script>
@@ -78,7 +78,7 @@
 
     // Scale adjustment using object3D.scale.set()
     function changeScale(step) {
-        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
+        scale = Math.max(0.00001, scale + step);  // Prevent scale from going below 0.1
         if (modelEntity) {
             // Use object3D.scale.set to apply scaling directly
             modelEntity.object3D.scale.set(scale, scale, scale);
