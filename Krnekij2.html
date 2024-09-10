@@ -8,8 +8,37 @@
         body, html {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            height: 100%;  /* Ensure we use the full viewport height */
+            overflow: hidden;  /* Prevent scrolling */
+        }
+        a-scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;  /* Full width */
+            height: 100%; /* Full height */
+        }
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .scale-controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
@@ -22,8 +51,8 @@
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            position="0 0 0"  <!-- You can adjust this to control where it appears -->
-            scale="1 1 1"  <!-- Initial scale -->
+            position="0 0 0"
+            scale="1 1 1"
             rotation="0 0 0"
             visible="true"
         ></a-entity>
@@ -34,6 +63,57 @@
         <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
         <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
+
+    <!-- Control Buttons for Scale and Rotation -->
+    <div class="controls">
+        <h3>Rotate Model</h3>
+        <div>
+            <button onclick="changeRotation(5)">Rotate +</button>
+            <button onclick="changeRotation(-5)">Rotate -</button>
+        </div>
+    </div>
+
+    <div class="scale-controls">
+        <button onclick="changeScale(0.1)">Scale +</button>
+        <button onclick="changeScale(-0.1)">Scale -</button>
+    </div>
+
+<script>
+    let scale = 1;
+    let rotation = 0;
+    let modelEntity;
+
+    // Scale adjustment
+    function changeScale(step) {
+        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
+        if (modelEntity) {
+            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
+            console.log('Scale set to:', scale);
+        }
+    }
+
+    // Rotation adjustment
+    function changeRotation(step) {
+        rotation += step;
+        if (modelEntity) {
+            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+            console.log('Rotation set to:', rotation);
+        }
+    }
+
+    window.onload = function () {
+        modelEntity = document.querySelector('#model');
+        if (modelEntity) {
+            // Ensure the model has loaded
+            modelEntity.addEventListener('model-loaded', () => {
+                console.log('Model loaded successfully');
+                // Apply initial scale and rotation after the model is loaded
+                modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
+                modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+            });
+        }
+    };
+</script>
 
 </body>
 </html>
