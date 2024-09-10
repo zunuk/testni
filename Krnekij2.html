@@ -8,15 +8,8 @@
         body, html {
             margin: 0;
             padding: 0;
-            height: 100%;  /* Ensure we use the full viewport height */
-            overflow: hidden;  /* Prevent scrolling */
-        }
-        a-scene {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;  /* Full width */
-            height: 100%; /* Full height */
+            height: 100%;
+            overflow: hidden;
         }
         .controls {
             position: absolute;
@@ -45,14 +38,14 @@
 <body>
     <a-scene embedded vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; antialias: true;">
         <!-- Static camera for testing the model without GPS -->
-        <a-camera position="0 1.6 0" fov="60"></a-camera>
+        <a-camera position="0 1.6 3" fov="60"></a-camera>
 
         <!-- Static GLTF model placed without GPS -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            position="0 0 0"
-            scale="1 1 1"
+            position="0 0 -3"  <!-- Set this position to ensure the model is in view -->
+            scale="1 1 1"  <!-- Initial scale -->
             rotation="0 0 0"
             visible="true"
         ></a-entity>
@@ -74,8 +67,8 @@
     </div>
 
     <div class="scale-controls">
-        <button onclick="changeScale(5.1)">Scale +</button>
-        <button onclick="changeScale(-5.1)">Scale -</button>
+        <button onclick="changeScale(10)">Scale +</button> <!-- Increase scale by 10 -->
+        <button onclick="changeScale(-1)">Scale -</button> <!-- Decrease scale by 1 -->
     </div>
 
 <script>
@@ -83,11 +76,12 @@
     let rotation = 0;
     let modelEntity;
 
-    // Scale adjustment
+    // Scale adjustment using object3D.scale.set()
     function changeScale(step) {
         scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
         if (modelEntity) {
-            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
+            // Use object3D.scale.set to apply scaling directly
+            modelEntity.object3D.scale.set(scale, scale, scale);
             console.log('Scale set to:', scale);
         }
     }
@@ -96,7 +90,7 @@
     function changeRotation(step) {
         rotation += step;
         if (modelEntity) {
-            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+            modelEntity.object3D.rotation.y += (step * Math.PI) / 180;  // Rotate in radians
             console.log('Rotation set to:', rotation);
         }
     }
@@ -108,8 +102,8 @@
             modelEntity.addEventListener('model-loaded', () => {
                 console.log('Model loaded successfully');
                 // Apply initial scale and rotation after the model is loaded
-                modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
-                modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+                modelEntity.object3D.scale.set(scale, scale, scale);
+                modelEntity.object3D.rotation.y = rotation;
             });
         }
     };
