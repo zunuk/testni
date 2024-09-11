@@ -149,7 +149,7 @@
     let latitude = 46.369833;
     let longitude = 15.631938;
     let yPosition = 0;  // This will only be used to adjust the y-axis
-    let rotation = 8;   // Initial rotation for the model
+    let rotation = 0;   // Initial rotation for the model
     let scale = 1;      // Initial scale
 
     let modelEntity;
@@ -176,15 +176,13 @@
     }
 
     // Update model coordinates from input fields
-    
-function updateModelCoordinates() {
-    latitude = parseFloat(latitudeInput.value);
-    longitude = parseFloat(longitudeInput.value);
-    yPosition = parseFloat(yPositionInput.value);  // This will only be used for manual y-axis control
-    updateModelAttributes();  // Only update model attributes when the button is pressed
-    console.log("Specified coordinates set.");
-}
-
+    function updateModelCoordinates() {
+        latitude = parseFloat(latitudeInput.value);
+        longitude = parseFloat(longitudeInput.value);
+        yPosition = parseFloat(yPositionInput.value);  // This will only be used for manual y-axis control
+        updateModelAttributes();
+        console.log("Specified coordinates set.");
+    }
 
     // Change the latitude
     function changeLatitude(step) {
@@ -219,31 +217,33 @@ function updateModelCoordinates() {
         updateModelAttributes();
     }
 
-    // Use current GPS coordinates of the device
-function useCurrentCoordinates() {
-    navigator.geolocation.watchPosition((position) => {
-        const deviceLatitude = position.coords.latitude;
-        const deviceLongitude = position.coords.longitude;
+    // Update only the device coordinates (do not affect the model coordinates)
+    function useCurrentCoordinates() {
+        navigator.geolocation.watchPosition((position) => {
+            const deviceLatitude = position.coords.latitude;
+            const deviceLongitude = position.coords.longitude;
 
-        // Continuously update the displayed device coordinates, without affecting the model's coordinates
-        deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-    }, (error) => {
-        console.error("Error accessing current location: " + error.message);
-        alert("Error accessing current location: " + error.message);
-    });
-}
-function useCurrentCoordinatesForModel() {
-    navigator.geolocation.getCurrentPosition((position) => {
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
+            // Only update the displayed device coordinates, not the model's coordinates
+            deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
+        }, (error) => {
+            console.error("Error accessing current location: " + error.message);
+            alert("Error accessing current location: " + error.message);
+        });
+    }
 
-        // Update model's coordinates when the "Current GPS Coordinates" button is clicked
-        updateModelAttributes();  // Update the model's position based on the current GPS coordinates
-    }, (error) => {
-        console.error("Error accessing current location: " + error.message);
-        alert("Error accessing current location: " + error.message);
-    });
-}
+    // Update the model coordinates to the current GPS location when the "Current GPS Coordinates" button is clicked
+    function useCurrentCoordinatesForModel() {
+        navigator.geolocation.getCurrentPosition((position) => {
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+
+            // Update model's coordinates
+            updateModelAttributes();
+        }, (error) => {
+            console.error("Error accessing current location: " + error.message);
+            alert("Error accessing current location: " + error.message);
+        });
+    }
 
     // Toggle input window visibility
     function toggleInputWindow() {
