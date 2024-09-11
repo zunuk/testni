@@ -238,29 +238,39 @@
         content.style.display = content.style.display === 'none' ? 'block' : 'none';
     }
 
-    // Initialize model and input fields after window loads
+
     window.onload = function () {
-        modelEntity = document.querySelector('#model');
-        latitudeInput = document.getElementById('latitude-input');
-        longitudeInput = document.getElementById('longitude-input');
-        yPositionInput = document.getElementById('y-position-input');
-        deviceCoordinatesDisplay = document.getElementById('device-coordinates');
+    modelEntity = document.querySelector('#model');
+    latitudeInput = document.getElementById('latitude-input');
+    longitudeInput = document.getElementById('longitude-input');
+    yPositionInput = document.getElementById('y-position-input');
+    deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
-        if (modelEntity) {
-            // Wait for the model to load before applying changes
-            modelEntity.addEventListener('model-loaded', () => {
-                console.log('Model loaded successfully');
-                updateModelAttributes();  // Initialize attributes once the model is loaded
-            });
+    if (modelEntity) {
+        // Wait for the model to load before applying changes
+        modelEntity.addEventListener('model-loaded', () => {
+            console.log('Model loaded successfully');
+            updateModelAttributes();  // Initialize attributes once the model is loaded
+        });
 
-            // Log distance to model when GPS updates
-            modelEntity.addEventListener('gps-entity-place-update', (event) => {
-                console.log(`Distance to model: ${event.detail.distance} meters`);
-            });
-        } else {
-            console.error("Model entity not found!");
-        }
-    };
+        // Log distance to model when GPS updates
+        modelEntity.addEventListener('gps-entity-place-update', (event) => {
+            console.log(`Distance to model: ${event.detail.distance} meters`);
+        });
+    } else {
+        console.error("Model entity not found!");
+    }
+
+    // Start watching the device's position continuously
+    navigator.geolocation.watchPosition((position) => {
+        const camera = document.querySelector('#camera');
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        camera.setAttribute('gps-new-camera', `latitude: ${lat}; longitude: ${lon};`);
+        console.log(`Camera updated to Latitude: ${lat}, Longitude: ${lon}`);
+    });
+};
+
 </script>
 
 
