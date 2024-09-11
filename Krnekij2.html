@@ -16,21 +16,28 @@
 <body>
     <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
         
-        <!-- Adjusted camera with further position and clipping planes -->
-        <a-camera position="0 0 0" look-controls ></a-camera>
+        <!-- Adjusted camera with further position -->
+        <a-camera position="0 0 5" look-controls></a-camera>
 
         <!-- Static GLTF model placed without GPS -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            position="0 0 0"  <!-- Model moved further back -->
-            scale="0.03 0.03 0.03"       <!-- Increased scale for visibility -->
+            position="0 0 -5"  <!-- Model moved further back -->
             rotation="0 0 0"
             visible="true"
         ></a-entity>
 
     </a-scene>
 
-
+    <script>
+        // Wait for the model to be fully loaded before setting the scale
+        const model = document.querySelector('#model');
+        
+        model.addEventListener('model-loaded', () => {
+            model.setAttribute('scale', '500 500 500');  // Set the scale after model loads
+            console.log('Model scale has been set to 50 50 50');
+        });
+    </script>
 </body>
 </html>
