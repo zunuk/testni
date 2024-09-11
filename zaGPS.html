@@ -8,7 +8,7 @@
     <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
     <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
     <style>
-        body, html {
+        body, html {c
             margin: 0;
             padding: 0;
             height: 100%;
@@ -125,7 +125,7 @@
     <!-- Separate GPS Location Buttons -->
     <div class="location-controls">
         <button onclick="useSpecifiedCoordinates()">Specified Coordinates</button>
-        <button onclick="useCurrentCoordinates()">Current GPS Coordinates</button>
+        <button onclick="useCurrentCoordinatesForModel()">Current GPS Coordinates</button>
     </div>
 
     <!-- Input window for latitude and longitude, with minimization -->
@@ -230,7 +230,17 @@
             alert("Error accessing current location: " + error.message);
         });
     }
-
+        function useSpecifiedCoordinates() {
+            latitudeInput.value = 46.560000;
+            longitudeInput.value = 15.641000;
+            altitudeInput.value = 10;
+            latitude = parseFloat(latitudeInput.value);
+            longitude = parseFloat(longitudeInput.value);
+            altitude = parseFloat(altitudeInput.value);
+            updatePosition();
+            console.log("Specified coordinates set.");
+        }
+    
     // Update the model coordinates to the current GPS location when the "Current GPS Coordinates" button is clicked
     function useCurrentCoordinatesForModel() {
         navigator.geolocation.getCurrentPosition((position) => {
