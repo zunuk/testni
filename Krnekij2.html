@@ -30,6 +30,14 @@
         ></a-entity>
 
     </a-scene>
-
+<script>
+        // Wait for the model to be fully loaded before setting the scale using Three.js
+        const model = document.querySelector('#model');
+        
+        model.addEventListener('model-loaded', () => {
+            model.object3D.scale.set(1, 2, 3);  // Set the scale using Three.js directly
+            console.log('Model scale has been set using Three.js: 1 2 3');
+        });
+    </script>
 </body>
 </html>
