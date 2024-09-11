@@ -72,7 +72,7 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 0.25;" id="camera"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 0.125;" id="camera"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
@@ -160,16 +160,16 @@
     function updateModelAttributes() {
         if (modelEntity) {
             // Update the GPS position (latitude, longitude)
-            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+            modelEntity.setAttribute('gps-new-entity-place', latitude: ${latitude}; longitude: ${longitude};);
 
             // Update the y-position without affecting x and z (only modify y-axis)
             modelEntity.object3D.position.y = yPosition;
 
             // Update the rotation and scale
-            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
-            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
+            modelEntity.setAttribute('scale', ${scale} ${scale} ${scale});
+            modelEntity.setAttribute('rotation', 0 ${rotation} 0);
 
-            console.log(`Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Y-Position=${yPosition}, Scale=${scale}, Rotation=${rotation}`);
+            console.log(Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Y-Position=${yPosition}, Scale=${scale}, Rotation=${rotation});
         }
     }
 
@@ -222,7 +222,7 @@
             const deviceLongitude = position.coords.longitude;
             latitudeInput.value = deviceLatitude;
             longitudeInput.value = deviceLongitude;
-            deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
+            deviceCoordinatesDisplay.innerText = Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude};
             latitude = deviceLatitude;
             longitude = deviceLongitude;
             updateModelAttributes();  // Move the model to the current GPS coordinates
@@ -238,39 +238,29 @@
         content.style.display = content.style.display === 'none' ? 'block' : 'none';
     }
 
-
+    // Initialize model and input fields after window loads
     window.onload = function () {
-    modelEntity = document.querySelector('#model');
-    latitudeInput = document.getElementById('latitude-input');
-    longitudeInput = document.getElementById('longitude-input');
-    yPositionInput = document.getElementById('y-position-input');
-    deviceCoordinatesDisplay = document.getElementById('device-coordinates');
+        modelEntity = document.querySelector('#model');
+        latitudeInput = document.getElementById('latitude-input');
+        longitudeInput = document.getElementById('longitude-input');
+        yPositionInput = document.getElementById('y-position-input');
+        deviceCoordinatesDisplay = document.getElementById('device-coordinates');
 
-    if (modelEntity) {
-        // Wait for the model to load before applying changes
-        modelEntity.addEventListener('model-loaded', () => {
-            console.log('Model loaded successfully');
-            updateModelAttributes();  // Initialize attributes once the model is loaded
-        });
+        if (modelEntity) {
+            // Wait for the model to load before applying changes
+            modelEntity.addEventListener('model-loaded', () => {
+                console.log('Model loaded successfully');
+                updateModelAttributes();  // Initialize attributes once the model is loaded
+            });
 
-        // Log distance to model when GPS updates
-        modelEntity.addEventListener('gps-entity-place-update', (event) => {
-            console.log(`Distance to model: ${event.detail.distance} meters`);
-        });
-    } else {
-        console.error("Model entity not found!");
-    }
-
-    // Start watching the device's position continuously
-    navigator.geolocation.watchPosition((position) => {
-        const camera = document.querySelector('#camera');
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        camera.setAttribute('gps-new-camera', `latitude: ${lat}; longitude: ${lon};`);
-        console.log(`Camera updated to Latitude: ${lat}, Longitude: ${lon}`);
-    });
-};
-
+            // Log distance to model when GPS updates
+            modelEntity.addEventListener('gps-entity-place-update', (event) => {
+                console.log(Distance to model: ${event.detail.distance} meters);
+            });
+        } else {
+            console.error("Model entity not found!");
+        }
+    };
 </script>
 
 
