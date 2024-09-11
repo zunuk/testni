@@ -25,19 +25,11 @@
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             position="0 0 -5"  <!-- Model moved further back -->
             rotation="0 0 0"
+            scale="0.1 0.1 0.1"
             visible="true"
         ></a-entity>
 
     </a-scene>
 
-    <script>
-        // Wait for the model to be fully loaded before setting the scale
-        const model = document.querySelector('#model');
-        
-        model.addEventListener('model-loaded', () => {
-            model.setAttribute('scale', '0.9900 0.9900 0.9900');  // Set the scale after model loads
-            console.log('Model scale has been set to 50 50 50');
-        });
-    </script>
 </body>
 </html>
