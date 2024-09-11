@@ -25,7 +25,6 @@
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             position="0 0 -5"  <!-- Model moved further back -->
             rotation="0 0 0"
-            scale="0.01 0.01 0.01"
             visible="true"
         ></a-entity>
 
@@ -35,7 +34,7 @@
         const model = document.querySelector('#model');
         
         model.addEventListener('model-loaded', () => {
-            model.object3D.scale.set(1, 2, 3);  // Set the scale using Three.js directly
+            model.object3D.scale.set(100, 100, 100);  // Set the scale using Three.js directly
             console.log('Model scale has been set using Three.js: 1 2 3');
         });
     </script>
