@@ -11,29 +11,27 @@
             height: 100%;
             overflow: hidden;
         }
+    </style> <!-- Added missing closing tag -->
 </head>
 <body>
     <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-
+        
         <!-- Static camera with fixed aspect ratio -->
         <a-camera 
             camera="active: true"
             look-controls
-            wasd-controls
         ></a-camera>
 
         <!-- Static GLTF model placed without GPS -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            position="0 0 0"  <!-- Set this position to ensure the model is in view -->
-            scale="1 1 1"  <!-- Initial scale -->
+            position="0 0 -3"  <!-- Adjusted to place model in front of the camera -->
+            scale="1 1 1"
             rotation="0 0 0"
             visible="true"
         ></a-entity>
 
-
     </a-scene>
-
 </body>
 </html>
