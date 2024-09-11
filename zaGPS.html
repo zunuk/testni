@@ -224,17 +224,22 @@ function useCurrentCoordinates() {
     navigator.geolocation.watchPosition((position) => {
         const deviceLatitude = position.coords.latitude;
         const deviceLongitude = position.coords.longitude;
+
+        // Update only the displayed device coordinates
         latitudeInput.value = deviceLatitude;
         longitudeInput.value = deviceLongitude;
         deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-        latitude = deviceLatitude;
-        longitude = deviceLongitude;
-        updateModelAttributes();  // Move the model to the current GPS coordinates
+        
+        // Do NOT update the model's coordinates (remove these lines)
+        // latitude = deviceLatitude;
+        // longitude = deviceLongitude;
+
     }, (error) => {
         console.error("Error accessing current location: " + error.message);
         alert("Error accessing current location: " + error.message);
     });
 }
+
 
 
     // Toggle input window visibility
