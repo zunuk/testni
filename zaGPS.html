@@ -72,7 +72,7 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 25;" id="camera"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 0.25;" id="camera"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
@@ -80,7 +80,7 @@
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             gps-new-entity-place="latitude: 46.369833; longitude: 15.631938;"
             position="0 0 0"
-            rotation="0 8 0"
+            rotation="0 0 0"
             scale="0.01 0.01 0.01"
             visible="true"
         ></a-entity>
@@ -88,8 +88,8 @@
         <!-- Lighting Setup -->
         <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
         <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
-        <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.8" position="0 20 0" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="1.5" position="30 20 15"></a-light>
     </a-scene>
 
     <!-- Control Buttons for Position, Rotation, and Y-Position -->
@@ -116,8 +116,8 @@
 
     <!-- Scale Control Buttons at the Top -->
     <div class="scale-controls">
-        <button onclick="changeScale(0.1)">Scale +</button>
-        <button onclick="changeScale(-0.1)">Scale -</button>
+        <button onclick="changeScale(1.0)">Scale +</button>
+        <button onclick="changeScale(-1.0)">Scale -</button>
     </div>
 
     <!-- Separate GPS Location Buttons -->
@@ -147,7 +147,7 @@
     let latitude = 46.369833;
     let longitude = 15.631938;
     let yPosition = 0;  // This will only be used to adjust the y-axis
-    let rotation = 8;   // Initial rotation for the model
+    let rotation = 0;   // Initial rotation for the model
     let scale = 1;      // Initial scale
 
     let modelEntity;
@@ -211,7 +211,7 @@
 
     // Change the scale
     function changeScale(step) {
-        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
+        scale = Math.max(0.01, scale + step);  // Prevent scale from going below 0.01
         updateModelAttributes();
     }
 
