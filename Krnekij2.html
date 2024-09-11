@@ -17,14 +17,14 @@
     <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; scale: fixed; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
         
         <!-- Adjusted camera with further position and clipping planes -->
-        <a-camera position="0 0 5" look-controls near="0.1" far="1000"></a-camera>
+        <a-camera position="0 0 0" look-controls ></a-camera>
 
         <!-- Static GLTF model placed without GPS -->
         <a-entity
             id="model"
             gltf-model="https://zunuk.github.io/testni/Finito1.glb"
-            position="0 0 -10"  <!-- Model moved further back -->
-            scale="0.05 0.05 0.05"       <!-- Increased scale for visibility -->
+            position="0 0 0"  <!-- Model moved further back -->
+            scale="1 1 1"       <!-- Increased scale for visibility -->
             rotation="0 0 0"
             visible="true"
         ></a-entity>
