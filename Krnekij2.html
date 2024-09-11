@@ -44,7 +44,9 @@
             fov="60" 
             near="0.1" 
             far="10000" 
-            camera="active: true; aspectRatio: 1.6" <!-- Manually set the aspect ratio -->
+            camera="active: true"
+            look-controls
+            wasd-controls
         ></a-camera>
 
         <!-- Static GLTF model placed without GPS -->
@@ -57,11 +59,7 @@
             visible="true"
         ></a-entity>
 
-        <!-- Lighting Setup -->
-        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
-        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
-        <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
+
     </a-scene>
 
     <!-- Control Buttons for Scale and Rotation -->
