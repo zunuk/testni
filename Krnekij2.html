@@ -31,18 +31,5 @@
 
     </a-scene>
 
-    <script>
-        // Adjust model's scale dynamically based on screen size
-        window.addEventListener('resize', () => {
-            const scale = window.innerWidth / 500;  // Adjust the ratio if needed
-            document.querySelector('#model').setAttribute('scale', `${scale} ${scale} ${scale}`);
-        });
-
-        // Initialize with proper scale on load
-        window.addEventListener('load', () => {
-            const scale = window.innerWidth / 500;  // Adjust the ratio if needed
-            document.querySelector('#model').setAttribute('scale', `${scale} ${scale} ${scale}`);
-        });
-    </script>
 </body>
 </html>
