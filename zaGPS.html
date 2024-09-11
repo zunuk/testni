@@ -72,7 +72,7 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 0.125;" id="camera"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 0.25;" id="camera"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
@@ -88,8 +88,8 @@
         <!-- Lighting Setup -->
         <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
         <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.8" position="0 20 0" castShadow="true"></a-light>
-        <a-light type="point" color="#FFF" intensity="1.5" position="30 20 15"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
     <!-- Control Buttons for Position, Rotation, and Y-Position -->
@@ -116,8 +116,8 @@
 
     <!-- Scale Control Buttons at the Top -->
     <div class="scale-controls">
-        <button onclick="changeScale(1.0)">Scale +</button>
-        <button onclick="changeScale(-1.0)">Scale -</button>
+        <button onclick="changeScale(0.5)">Scale +</button>
+        <button onclick="changeScale(0.5)">Scale -</button>
     </div>
 
     <!-- Separate GPS Location Buttons -->
@@ -160,20 +160,20 @@
     function updateModelAttributes() {
         if (modelEntity) {
             // Update the GPS position (latitude, longitude)
-            modelEntity.setAttribute('gps-new-entity-place', latitude: ${latitude}; longitude: ${longitude};);
+            modelEntity.setAttribute('gps-new-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
 
             // Update the y-position without affecting x and z (only modify y-axis)
             modelEntity.object3D.position.y = yPosition;
 
             // Update the rotation and scale
-            modelEntity.setAttribute('scale', ${scale} ${scale} ${scale});
-            modelEntity.setAttribute('rotation', 0 ${rotation} 0);
+            modelEntity.setAttribute('scale', `${scale} ${scale} ${scale}`);
+            modelEntity.setAttribute('rotation', `0 ${rotation} 0`);
 
-            console.log(Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Y-Position=${yPosition}, Scale=${scale}, Rotation=${rotation});
+            console.log(`Attributes updated: Latitude=${latitude}, Longitude=${longitude}, Y-Position=${yPosition}, Scale=${scale}, Rotation=${rotation}`);
         }
     }
 
-    // Update model coordinates from input fieldsa
+    // Update model coordinates from input fields
     function updateModelCoordinates() {
         latitude = parseFloat(latitudeInput.value);
         longitude = parseFloat(longitudeInput.value);
@@ -211,7 +211,7 @@
 
     // Change the scale
     function changeScale(step) {
-        scale = Math.max(0.01, scale + step);  // Prevent scale from going below 0.01
+        scale = Math.max(0.1, scale + step);  // Prevent scale from going below 0.1
         updateModelAttributes();
     }
 
@@ -222,7 +222,7 @@
             const deviceLongitude = position.coords.longitude;
             latitudeInput.value = deviceLatitude;
             longitudeInput.value = deviceLongitude;
-            deviceCoordinatesDisplay.innerText = Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude};
+            deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
             latitude = deviceLatitude;
             longitude = deviceLongitude;
             updateModelAttributes();  // Move the model to the current GPS coordinates
@@ -255,7 +255,7 @@
 
             // Log distance to model when GPS updates
             modelEntity.addEventListener('gps-entity-place-update', (event) => {
-                console.log(Distance to model: ${event.detail.distance} meters);
+                console.log(`Distance to model: ${event.detail.distance} meters`);
             });
         } else {
             console.error("Model entity not found!");
