@@ -72,29 +72,24 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 0.25;" position="0 1.6 0" id="camera"></a-camera>
-
+        <a-camera gps-new-camera="gpsMinDistance: 25;" id="camera"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
             id="model"
-            gltf-model="https://zunuk.github.io/testni/Finito2.glb"
+            gltf-model="https://zunuk.github.io/testni/Finito1.glb"
             gps-new-entity-place="latitude: 46.369833; longitude: 15.631938;"
             position="0 0 0"
-            rotation="0 0 0"
-            scale="1 1 1"
+            rotation="0 8 0"
+            scale="100 100 100"
             visible="true"
-         <!-- Sphere to represent the pivot point -->
-    <a-sphere position="0 0 0" radius="1.0" color="red"></a-sphere>
         ></a-entity>
 
         <!-- Lighting Setup -->
-        <a-light type="ambient" color="#FFF" intensity="2.0"></a-light>
+        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
         <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.8" position="0 20 0" castShadow="true"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.8" position="30 20 0" castShadow="true"></a-light>
-        <a-light type="point" color="#FFF" intensity="1.5" position="2 20 0"></a-light>
-         <a-light type="point" color="#FFF" intensity="1.5" position="2 20 15"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
     </a-scene>
 
     <!-- Control Buttons for Position, Rotation, and Y-Position -->
@@ -121,8 +116,8 @@
 
     <!-- Scale Control Buttons at the Top -->
     <div class="scale-controls">
-        <button onclick="changeScale(0.5)">Scale +</button>
-        <button onclick="changeScale(0.5)">Scale -</button>
+        <button onclick="changeScale(0.1)">Scale +</button>
+        <button onclick="changeScale(-0.1)">Scale -</button>
     </div>
 
     <!-- Separate GPS Location Buttons -->
@@ -152,7 +147,7 @@
     let latitude = 46.369833;
     let longitude = 15.631938;
     let yPosition = 0;  // This will only be used to adjust the y-axis
-    let rotation = 0;   // Initial rotation for the model
+    let rotation = 8;   // Initial rotation for the model
     let scale = 1;      // Initial scale
 
     let modelEntity;
@@ -220,20 +215,22 @@
         updateModelAttributes();
     }
 
-function useCurrentCoordinates() {
-    navigator.geolocation.watchPosition((position) => {
-        const deviceLatitude = position.coords.latitude;
-        const deviceLongitude = position.coords.longitude;
-
-        // Only update the displayed device coordinates, not the model's coordinates
-        deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-        
-    }, (error) => {
-        console.error("Error accessing current location: " + error.message);
-        alert("Error accessing current location: " + error.message);
-    });
-}
-
+    // Use current GPS coordinates of the device
+    function useCurrentCoordinates() {
+        navigator.geolocation.getCurrentPosition((position) => {
+            const deviceLatitude = position.coords.latitude;
+            const deviceLongitude = position.coords.longitude;
+            latitudeInput.value = deviceLatitude;
+            longitudeInput.value = deviceLongitude;
+            deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
+            latitude = deviceLatitude;
+            longitude = deviceLongitude;
+            updateModelAttributes();  // Move the model to the current GPS coordinates
+        }, (error) => {
+            console.error("Error accessing current location: " + error.message);
+            alert("Error accessing current location: " + error.message);
+        });
+    }
 
     // Toggle input window visibility
     function toggleInputWindow() {
