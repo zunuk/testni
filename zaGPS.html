@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <title>PrikazAR</title>
-        <!-- Permissions-Policy to disable FLoC -->
     <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
@@ -72,24 +71,26 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;"
     >
         <!-- New location-based GPS camera -->
-        <a-camera gps-new-camera="gpsMinDistance: 25;" id="camera"></a-camera>
+        <a-camera gps-new-camera="gpsMinDistance: 0.25;" id="camera"></a-camera>
 
         <!-- GLTF model placed at specific GPS coordinates -->
         <a-entity
             id="model"
-            gltf-model="https://zunuk.github.io/testni/Finito1.glb"
+            gltf-model="https://zunuk.github.io/testni/Finito2.glb"
             gps-new-entity-place="latitude: 46.369833; longitude: 15.631938;"
             position="0 0 0"
-            rotation="0 8 0"
-            scale="100 100 100"
+            rotation="0 0 0"
+            scale="1 1 1"
             visible="true"
         ></a-entity>
 
         <!-- Lighting Setup -->
-        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
+        <a-light type="ambient" color="#FFF" intensity="2.0"></a-light>
         <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.8" position="-2 4 -1" castShadow="true"></a-light>
-        <a-light type="point" color="#FFF" intensity="1.5" position="2 3 2"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.8" position="0 20 0" castShadow="true"></a-light>
+        <a-light type="directional" color="#FFF" intensity="1.8" position="30 20 0" castShadow="true"></a-light>
+        <a-light type="point" color="#FFF" intensity="1.5" position="2 20 0"></a-light>
+         <a-light type="point" color="#FFF" intensity="1.5" position="2 20 15"></a-light>
     </a-scene>
 
     <!-- Control Buttons for Position, Rotation, and Y-Position -->
@@ -215,22 +216,20 @@
         updateModelAttributes();
     }
 
-    // Use current GPS coordinates of the device
-    function useCurrentCoordinates() {
+    // Use current GPS coordinates of the device and update the display
+    function updateDeviceCoordinates() {
         navigator.geolocation.getCurrentPosition((position) => {
             const deviceLatitude = position.coords.latitude;
             const deviceLongitude = position.coords.longitude;
-            latitudeInput.value = deviceLatitude;
-            longitudeInput.value = deviceLongitude;
             deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
-            latitude = deviceLatitude;
-            longitude = deviceLongitude;
-            updateModelAttributes();  // Move the model to the current GPS coordinates
         }, (error) => {
             console.error("Error accessing current location: " + error.message);
             alert("Error accessing current location: " + error.message);
         });
     }
+
+    // Continuously fetch and display the current device coordinates
+    setInterval(updateDeviceCoordinates, 5000);  // Update device coordinates every 5 seconds
 
     // Toggle input window visibility
     function toggleInputWindow() {
@@ -262,7 +261,6 @@
         }
     };
 </script>
-
 
 </body>
 </html>
