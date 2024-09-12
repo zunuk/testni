@@ -11,21 +11,6 @@
 				overflow: hidden;
 				height: 100%;
 			}
-			.controls {
-				position: absolute;
-				bottom: 10px;
-				left: 10px;
-				background-color: rgba(255, 255, 255, 0.8);
-				padding: 10px;
-				border-radius: 5px;
-				display: flex;
-				flex-direction: column;
-				gap: 5px;
-			}
-			button {
-				padding: 5px 10px;
-				font-size: 14px;
-			}
 		</style>
 	</head>
 	<body>
@@ -52,67 +37,62 @@
 			let camera, scene, renderer;
 			let controller;
 			let reticle;
-			let model = null;
+			let model = null;  // This will hold the loaded GLTF model
+
 			let hitTestSource = null;
 			let hitTestSourceRequested = false;
-
-			let scale = 1;
-			let positionOffset = { x: 0, y: 0, z: 0 }; // Offsets for moving the model
 
 			init();
 			animate();
 
 			function init() {
-				container = document.createElement( 'div' );
-				document.body.appendChild( container );
+				container = document.createElement('div');
+				document.body.appendChild(container);
 
 				scene = new THREE.Scene();
-				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 3 );
-				light.position.set( 0.5, 1, 0.25 );
-				scene.add( light );
+				const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 3);
+				light.position.set(0.5, 1, 0.25);
+				scene.add(light);
 
-				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.setAnimationLoop( animate );
+				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setAnimationLoop(animate);
 				renderer.xr.enabled = true;
-				container.appendChild( renderer.domElement );
+				container.appendChild(renderer.domElement);
 
-				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+				document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] }));
 
 				// Load the GLTF model
 				const loader = new GLTFLoader();
 				loader.load('https://zunuk.github.io/testni/Finito3.glb', (gltf) => {
 					model = gltf.scene;
-					model.scale.set(scale, scale, scale); // Initial scale
+					model.scale.set(1, 1, 1); // Initial scale
+				}, undefined, (error) => {
+					console.error('An error happened while loading the GLTF model', error);
 				});
 
 				reticle = new THREE.Mesh(
-					new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+					new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
 					new THREE.MeshBasicMaterial()
 				);
 				reticle.matrixAutoUpdate = false;
 				reticle.visible = false;
-				scene.add( reticle );
+				scene.add(reticle);
 
-				controller = renderer.xr.getController( 0 );
-				controller.addEventListener( 'select', onSelect );
-				scene.add( controller );
+				controller = renderer.xr.getController(0);
+				controller.addEventListener('select', onSelect);
+				scene.add(controller);
 
-				window.addEventListener( 'resize', onWindowResize );
-
-				// Add control buttons for moving and scaling
-				addControls();
+				window.addEventListener('resize', onWindowResize);
 			}
 
 			function onSelect() {
 				if (reticle.visible && model) {
 					const modelClone = model.clone();
 					reticle.matrix.decompose(modelClone.position, modelClone.quaternion, modelClone.scale);
-					modelClone.position.add(new THREE.Vector3(positionOffset.x, positionOffset.y, positionOffset.z));
-					modelClone.scale.set(scale, scale, scale);
 					scene.add(modelClone);
 				}
 			}
@@ -157,67 +137,6 @@
 				}
 
 				renderer.render(scene, camera);
-			}
-
-			function addControls() {
-				const controls = document.createElement('div');
-				controls.className = 'controls';
-				document.body.appendChild(controls);
-
-				// Position buttons
-				const moveXPlus = document.createElement('button');
-				moveXPlus.textContent = 'Move X+';
-				moveXPlus.onclick = () => changePosition('x', 0.1);
-				controls.appendChild(moveXPlus);
-
-				const moveXMinus = document.createElement('button');
-				moveXMinus.textContent = 'Move X-';
-				moveXMinus.onclick = () => changePosition('x', -0.1);
-				controls.appendChild(moveXMinus);
-
-				const moveYPlus = document.createElement('button');
-				moveYPlus.textContent = 'Move Y+';
-				moveYPlus.onclick = () => changePosition('y', 0.1);
-				controls.appendChild(moveYPlus);
-
-				const moveYMinus = document.createElement('button');
-				moveYMinus.textContent = 'Move Y-';
-				moveYMinus.onclick = () => changePosition('y', -0.1);
-				controls.appendChild(moveYMinus);
-
-				const moveZPlus = document.createElement('button');
-				moveZPlus.textContent = 'Move Z+';
-				moveZPlus.onclick = () => changePosition('z', 0.1);
-				controls.appendChild(moveZPlus);
-
-				const moveZMinus = document.createElement('button');
-				moveZMinus.textContent = 'Move Z-';
-				moveZMinus.onclick = () => changePosition('z', -0.1);
-				controls.appendChild(moveZMinus);
-
-				// Scale buttons
-				const scaleUp = document.createElement('button');
-				scaleUp.textContent = 'Scale +';
-				scaleUp.onclick = () => changeScale(0.1);
-				controls.appendChild(scaleUp);
-
-				const scaleDown = document.createElement('button');
-				scaleDown.textContent = 'Scale -';
-				scaleDown.onclick = () => changeScale(-0.1);
-				controls.appendChild(scaleDown);
-			}
-
-			// Function to change model position
-			function changePosition(axis, value) {
-				positionOffset[axis] += value;
-			}
-
-			// Function to change model scale
-			function changeScale(value) {
-				scale = Math.max(0.1, scale + value); // Ensure the scale doesn't go below 0.1
-				if (model) {
-					model.scale.set(scale, scale, scale);
-				}
 			}
 		</script>
 	</body>
