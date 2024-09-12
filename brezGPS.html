@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>three.js AR - Hit Test with Anchors</title>
@@ -23,14 +23,14 @@
 				pointer-events: none;
 			}
 			.button-container {
-				position: fixed; /* Changed to fixed to stay visible during AR mode */
+				position: fixed;
 				bottom: 10px;
 				left: 10px;
-				z-index: 9999; /* Very high z-index to ensure visibility */
-				display: flex;
+				z-index: 9999; /* High z-index to ensure it's on top */
+				display: none; /* Hidden initially, shown in AR */
 				flex-direction: column;
 				gap: 10px;
-				pointer-events: auto; /* Allow interaction */
+				pointer-events: auto;
 			}
 			button {
 				padding: 10px;
@@ -49,7 +49,7 @@
 		</div>
 
 		<!-- Control buttons -->
-		<div class="button-container">
+		<div class="button-container" id="button-container">
 			<button onclick="moveModel('x', 0.1)">Move X+</button>
 			<button onclick="moveModel('x', -0.1)">Move X-</button>
 			<button onclick="moveModel('y', 0.1)">Move Y+</button>
@@ -69,6 +69,7 @@
 			let hitTestSource = null;
 			let hitTestSourceRequested = false;
 			let modelPlaced = false;
+			let buttonContainer;
 
 			init();
 			animate();
@@ -125,6 +126,19 @@
 				controller = renderer.xr.getController(0);
 				controller.addEventListener('select', onSelect);
 				scene.add(controller);
+
+				// Cache the button container
+				buttonContainer = document.getElementById('button-container');
+
+				// Show buttons when AR starts
+				renderer.xr.addEventListener('sessionstart', () => {
+					buttonContainer.style.display = 'flex'; // Show buttons in AR
+				});
+
+				// Hide buttons when AR ends
+				renderer.xr.addEventListener('sessionend', () => {
+					buttonContainer.style.display = 'none'; // Hide buttons outside AR
+				});
 
 				window.addEventListener('resize', onWindowResize);
 			}
