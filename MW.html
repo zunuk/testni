@@ -57,6 +57,14 @@
 				cursor: pointer;
 				pointer-events: auto; /* Interaction allowed */
 			}
+			#ar-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				pointer-events: none; /* Prevent all interaction except button clicks */
+			}
 		</style>
 	</head>
 	<body>
@@ -65,20 +73,22 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test with Anchors<br />(Chrome Android 81+)
 		</div>
 
-		<!-- Minimized button window -->
-		<div class="button-container" id="button-container">
-			<button class="ar-button" onclick="moveModel('x', 0.1)">Move X+</button>
-			<button class="ar-button" onclick="moveModel('x', -0.1)">Move X-</button>
-			<button class="ar-button" onclick="moveModel('y', 0.1)">Move Y+</button>
-			<button class="ar-button" onclick="moveModel('y', -0.1)">Move Y-</button>
-			<button class="ar-button" onclick="moveModel('z', 0.1)">Move Z+</button>
-			<button class="ar-button" onclick="moveModel('z', -0.1)">Move Z-</button>
-			<button class="ar-button" onclick="scaleModel(0.1)">Scale +</button>
-			<button class="ar-button" onclick="scaleModel(-0.1)">Scale -</button>
+		<!-- AR interaction overlay -->
+		<div id="ar-overlay">
+			<!-- Minimized button window -->
+			<div class="button-container" id="button-container">
+				<button onclick="moveModel('x', 0.1)">Move X+</button>
+				<button onclick="moveModel('x', -0.1)">Move X-</button>
+				<button onclick="moveModel('y', 0.1)">Move Y+</button>
+				<button onclick="moveModel('y', -0.1)">Move Y-</button>
+				<button onclick="moveModel('z', 0.1)">Move Z+</button>
+				<button onclick="moveModel('z', -0.1)">Move Z-</button>
+				<button onclick="scaleModel(0.1)">Scale +</button>
+				<button onclick="scaleModel(-0.1)">Scale -</button>
+			</div>
+			<!-- Toggle button for the button container -->
+			<button id="toggle-buttons" onclick="toggleButtonWindow()">Minimize</button>
 		</div>
-
-		<!-- Toggle button for the button container -->
-		<button id="toggle-buttons" class="ar-button" onclick="toggleButtonWindow()">Minimize</button>
 
 		<script type="module">
 			import * as THREE from 'https://esm.sh/three@0.168.0';
@@ -146,11 +156,11 @@
 
 				window.addEventListener('resize', onWindowResize);
 
-				// Ensure buttons stop propagation and do not trigger WebXR's `select` event
-				document.querySelectorAll('.ar-button').forEach(button => {
+				// Prevent WebXR's `select` event from firing on button clicks
+				document.querySelectorAll('button').forEach(button => {
 					button.addEventListener('click', (event) => {
 						event.preventDefault(); // Prevent default action
-						event.stopPropagation(); // Prevent the event from reaching AR interaction
+						event.stopPropagation(); // Prevent event propagation to WebXR
 					});
 				});
 			}
