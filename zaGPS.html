@@ -233,11 +233,8 @@
         function useSpecifiedCoordinates() {
             latitudeInput.value = 46.560000;
             longitudeInput.value = 15.641000;
-            altitudeInput.value = 10;
             latitude = parseFloat(latitudeInput.value);
             longitude = parseFloat(longitudeInput.value);
-            altitude = parseFloat(altitudeInput.value);
-            updatePosition();
             console.log("Specified coordinates set.");
         }
     
@@ -246,6 +243,9 @@
         navigator.geolocation.getCurrentPosition((position) => {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
+    // Update the input fields to show the new model coordinates
+        latitudeInput.value = latitude;
+        longitudeInput.value = longitude;
 
             // Update model's coordinates
             updateModelAttributes();
