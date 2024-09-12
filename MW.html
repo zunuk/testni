@@ -1,169 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Plane Detection AR</title>
-    <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
+	<head>
+		<title>three.js ar - hit test</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<style>
+			body, html {
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				height: 100%;
+			}
+			.controls {
+				position: absolute;
+				bottom: 10px;
+				left: 10px;
+				background-color: rgba(255, 255, 255, 0.8);
+				padding: 10px;
+				border-radius: 5px;
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+			}
+			button {
+				padding: 5px 10px;
+				font-size: 14px;
+			}
+		</style>
+	</head>
+	<body>
 
-        .controls {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background-color: rgba(255, 255, 255, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - hit test<br/>(Chrome Android 81+)
+		</div>
 
-        button {
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
 
-<script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.139.0/build/three.module.js';
-    import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.139.0/examples/jsm/webxr/ARButton.js';
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.139.0/examples/jsm/loaders/GLTFLoader.js';
+		<script type="module">
+			import * as THREE from 'three';
+			import { ARButton } from 'three/addons/webxr/ARButton.js';
+			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    let camera, scene, renderer;
-    let controller;
-    let reticle;
-    let model;
-    let hitTestSource = null;
-    let hitTestSourceRequested = false;
-    let scale = 1;
+			let container;
+			let camera, scene, renderer;
+			let controller;
+			let reticle;
+			let model = null;
+			let hitTestSource = null;
+			let hitTestSourceRequested = false;
 
-    init();
-    animate();
+			let scale = 1;
+			let positionOffset = { x: 0, y: 0, z: 0 }; // Offsets for moving the model
 
-    function init() {
-        // Scene and Camera Setup
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+			init();
+			animate();
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xFFFFFF, 2.0);
-        scene.add(ambientLight);
+			function init() {
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
 
-        const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1.8);
-        directionalLight.position.set(30, 20, 0).normalize();
-        scene.add(directionalLight);
+				scene = new THREE.Scene();
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
 
-        // Renderer with WebXR Enabled
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
-        document.body.appendChild(renderer.domElement);
+				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 3 );
+				light.position.set( 0.5, 1, 0.25 );
+				scene.add( light );
 
-        // AR Button to enter AR mode
-        document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] }));
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setAnimationLoop( animate );
+				renderer.xr.enabled = true;
+				container.appendChild( renderer.domElement );
 
-        // Load 3D Model (GLTF)
-        const loader = new GLTFLoader();
-        loader.load('https://zunuk.github.io/testni/Finito3.glb', (gltf) => {
-            model = gltf.scene;
-            model.scale.set(scale, scale, scale); // Initial scale
-        });
+				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
-        // Reticle for plane detection
-        const geometry = new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2);
-        const material = new THREE.MeshBasicMaterial();
-        reticle = new THREE.Mesh(geometry, material);
-        reticle.matrixAutoUpdate = false;
-        reticle.visible = false;
-        scene.add(reticle);
+				// Load the GLTF model
+				const loader = new GLTFLoader();
+				loader.load('https://zunuk.github.io/testni/Finito3.glb', (gltf) => {
+					model = gltf.scene;
+					model.scale.set(scale, scale, scale); // Initial scale
+				});
 
-        // AR Controller
-        controller = renderer.xr.getController(0);
-        controller.addEventListener('select', onSelect);
-        scene.add(controller);
+				reticle = new THREE.Mesh(
+					new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+					new THREE.MeshBasicMaterial()
+				);
+				reticle.matrixAutoUpdate = false;
+				reticle.visible = false;
+				scene.add( reticle );
 
-        // Window resize handling
-        window.addEventListener('resize', onWindowResize, false);
-    }
+				controller = renderer.xr.getController( 0 );
+				controller.addEventListener( 'select', onSelect );
+				scene.add( controller );
 
-    function onSelect() {
-        if (reticle.visible && model) {
-            const modelClone = model.clone();
-            modelClone.position.setFromMatrixPosition(reticle.matrix);
-            scene.add(modelClone);
-        }
-    }
+				window.addEventListener( 'resize', onWindowResize );
 
-    function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    }
+				// Add control buttons for moving and scaling
+				addControls();
+			}
 
-    function animate() {
-        renderer.setAnimationLoop(render);
-    }
+			function onSelect() {
+				if (reticle.visible && model) {
+					const modelClone = model.clone();
+					reticle.matrix.decompose(modelClone.position, modelClone.quaternion, modelClone.scale);
+					modelClone.position.add(new THREE.Vector3(positionOffset.x, positionOffset.y, positionOffset.z));
+					modelClone.scale.set(scale, scale, scale);
+					scene.add(modelClone);
+				}
+			}
 
-    function render(timestamp, frame) {
-        if (frame) {
-            const session = renderer.xr.getSession();
-            const viewerSpace = renderer.xr.getReferenceSpace();
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
 
-            if (!hitTestSourceRequested) {
-                session.requestReferenceSpace('viewer').then((referenceSpace) => {
-                    session.requestHitTestSource({ space: referenceSpace }).then((source) => {
-                        hitTestSource = source;
-                    });
-                });
+			function animate(timestamp, frame) {
+				if (frame) {
+					const referenceSpace = renderer.xr.getReferenceSpace();
+					const session = renderer.xr.getSession();
 
-                session.addEventListener('end', () => {
-                    hitTestSourceRequested = false;
-                    hitTestSource = null;
-                });
+					if (!hitTestSourceRequested) {
+						session.requestReferenceSpace('viewer').then((referenceSpace) => {
+							session.requestHitTestSource({ space: referenceSpace }).then((source) => {
+								hitTestSource = source;
+							});
+						});
 
-                hitTestSourceRequested = true;
-            }
+						session.addEventListener('end', () => {
+							hitTestSourceRequested = false;
+							hitTestSource = null;
+						});
 
-            if (hitTestSource) {
-                const hitTestResults = frame.getHitTestResults(hitTestSource);
-                if (hitTestResults.length > 0) {
-                    const hit = hitTestResults[0];
-                    const pose = hit.getPose(viewerSpace);
+						hitTestSourceRequested = true;
+					}
 
-                    reticle.visible = true;
-                    reticle.matrix.fromArray(pose.transform.matrix);
-                } else {
-                    reticle.visible = false;
-                }
-            }
-        }
+					if (hitTestSource) {
+						const hitTestResults = frame.getHitTestResults(hitTestSource);
 
-        renderer.render(scene, camera);
-    }
+						if (hitTestResults.length) {
+							const hit = hitTestResults[0];
+							reticle.visible = true;
+							reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+						} else {
+							reticle.visible = false;
+						}
+					}
+				}
 
-    // Functions for Scale Controls
-    function changeScale(step) {
-        scale = Math.max(0.1, scale + step);
-        if (model) {
-            model.scale.set(scale, scale, scale);
-        }
-    }
+				renderer.render(scene, camera);
+			}
 
-</script>
+			function addControls() {
+				const controls = document.createElement('div');
+				controls.className = 'controls';
+				document.body.appendChild(controls);
 
-<!-- Control Buttons for Position, Rotation, and Y-Position -->
-<div class="controls">
-    <button onclick="changeScale(0.1)">Scale +</button>
-    <button onclick="changeScale(-0.1)">Scale -</button>
-</div>
+				// Position buttons
+				const moveXPlus = document.createElement('button');
+				moveXPlus.textContent = 'Move X+';
+				moveXPlus.onclick = () => changePosition('x', 0.1);
+				controls.appendChild(moveXPlus);
 
-</body>
+				const moveXMinus = document.createElement('button');
+				moveXMinus.textContent = 'Move X-';
+				moveXMinus.onclick = () => changePosition('x', -0.1);
+				controls.appendChild(moveXMinus);
+
+				const moveYPlus = document.createElement('button');
+				moveYPlus.textContent = 'Move Y+';
+				moveYPlus.onclick = () => changePosition('y', 0.1);
+				controls.appendChild(moveYPlus);
+
+				const moveYMinus = document.createElement('button');
+				moveYMinus.textContent = 'Move Y-';
+				moveYMinus.onclick = () => changePosition('y', -0.1);
+				controls.appendChild(moveYMinus);
+
+				const moveZPlus = document.createElement('button');
+				moveZPlus.textContent = 'Move Z+';
+				moveZPlus.onclick = () => changePosition('z', 0.1);
+				controls.appendChild(moveZPlus);
+
+				const moveZMinus = document.createElement('button');
+				moveZMinus.textContent = 'Move Z-';
+				moveZMinus.onclick = () => changePosition('z', -0.1);
+				controls.appendChild(moveZMinus);
+
+				// Scale buttons
+				const scaleUp = document.createElement('button');
+				scaleUp.textContent = 'Scale +';
+				scaleUp.onclick = () => changeScale(0.1);
+				controls.appendChild(scaleUp);
+
+				const scaleDown = document.createElement('button');
+				scaleDown.textContent = 'Scale -';
+				scaleDown.onclick = () => changeScale(-0.1);
+				controls.appendChild(scaleDown);
+			}
+
+			// Function to change model position
+			function changePosition(axis, value) {
+				positionOffset[axis] += value;
+			}
+
+			// Function to change model scale
+			function changeScale(value) {
+				scale = Math.max(0.1, scale + value); // Ensure the scale doesn't go below 0.1
+				if (model) {
+					model.scale.set(scale, scale, scale);
+				}
+			}
+		</script>
+	</body>
 </html>
