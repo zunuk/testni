@@ -263,22 +263,47 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
             console.log("Specified coordinates set.");
         }
     
-    // Update the model coordinates to the current GPS location when the "Current GPS Coordinates" button is clicked
-    function useCurrentCoordinatesForModel() {
-        navigator.geolocation.getCurrentPosition((position) => {
-            latitude = position.coords.latitude;
-            longitude = position.coords.longitude;
-    // Update the input fields to show the new model coordinates
-        latitudeInput.value = latitude;
-        longitudeInput.value = longitude;
+// Function to place the model 3 meters in front of the camera, considering device orientation
+function useCurrentCoordinatesForModel() {
+    navigator.geolocation.getCurrentPosition((position) => {
+        const deviceLatitude = position.coords.latitude;
+        const deviceLongitude = position.coords.longitude;
 
-            // Update model's coordinates
+        // Use deviceorientation event to get the heading (bearing) of the device
+        window.addEventListener('deviceorientation', (event) => {
+            const heading = event.alpha;  // Get the device's orientation (alpha is the heading in degrees)
+
+            // Constants to convert meters to degrees
+            const metersToLatitude = 1 / 111139;  // Convert meters to latitude degrees
+            const metersToLongitude = 1 / (111139 * Math.cos(deviceLatitude * Math.PI / 180)); // Convert meters to longitude degrees
+
+            // Offset for 3 meters based on heading
+            const offsetDistance = 3;  // 3 meters
+
+            // Convert heading from degrees to radians
+            const headingRadians = heading * (Math.PI / 180);
+
+            // Calculate new latitude and longitude based on the heading
+            const newLatitude = deviceLatitude + (Math.cos(headingRadians) * offsetDistance * metersToLatitude);
+            const newLongitude = deviceLongitude + (Math.sin(headingRadians) * offsetDistance * metersToLongitude);
+
+            // Update the model's coordinates
+            latitude = newLatitude;
+            longitude = newLongitude;
+
+            // Update the input fields to show the new model coordinates
+            latitudeInput.value = latitude.toFixed(6);
+            longitudeInput.value = longitude.toFixed(6);
+
+            // Update the model's position in the scene
             updateModelAttributes();
-        }, (error) => {
-            console.error("Error accessing current location: " + error.message);
-            alert("Error accessing current location: " + error.message);
         });
-    }
+    }, (error) => {
+        console.error("Error accessing current location: " + error.message);
+        alert("Error accessing current location: " + error.message);
+    });
+}
+
 
     // Toggle input window visibility
     function toggleInputWindow() {
