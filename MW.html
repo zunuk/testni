@@ -75,6 +75,8 @@
 			<button onclick="moveModel('z', -0.1)">Move Z-</button>
 			<button onclick="scaleModel(0.1)">Scale +</button>
 			<button onclick="scaleModel(-0.1)">Scale -</button>
+			<button onclick="rotateModel(0.1)">Rotate Y+</button> <!-- New Rotate Y+ button -->
+			<button onclick="rotateModel(-0.1)">Rotate Y-</button> <!-- New Rotate Y- button -->
 			<button onclick="hitAndAnchor()">Hit/Anchor</button> <!-- Hit/Anchor button -->
 		</div>
 		<button id="toggle-buttons" onclick="toggleButtonWindow()">Minimize</button>
@@ -97,11 +99,11 @@
 
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-				// Lighting setup
-				const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+				// Increased Lighting
+				const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); // Increased from 0.7 to 1.0
 				scene.add(ambientLight);
 
-				const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+				const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); // Increased from 1.5 to 2.0
 				directionalLight.position.set(1, 2, 3).normalize();
 				scene.add(directionalLight);
 
@@ -206,6 +208,14 @@
 				}
 			}
 
+			// Function to rotate the model about the Y-axis
+			function rotateModel(value) {
+				if (model) {
+					model.rotation.y += value;
+					console.log(`Model rotated by ${value} radians`);
+				}
+			}
+
 			// Handle window resize
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -263,6 +273,7 @@
 			// Make functions globally accessible
 			window.moveModel = moveModel;
 			window.scaleModel = scaleModel;
+			window.rotateModel = rotateModel;
 			window.hitAndAnchor = hitAndAnchor;
 			window.toggleButtonWindow = toggleButtonWindow;
 		</script>
