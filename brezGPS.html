@@ -26,12 +26,12 @@
 				position: fixed;
 				bottom: 10px;
 				left: 10px;
-				z-index: 9999; /* High z-index to ensure it's on top */
-				display: none; /* Hidden initially, shown in AR */
+				z-index: 9999;
+				display: flex;
 				flex-direction: column;
 				gap: 10px;
 				pointer-events: auto;
-				background-color: rgba(255, 255, 255, 0.8); /* Transparent background to make them visible over AR */
+				background-color: rgba(255, 255, 255, 0.8);
 				padding: 10px;
 				border-radius: 8px;
 			}
@@ -52,17 +52,7 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test with Anchors<br />(Chrome Android 81+)
 		</div>
 
-		<!-- Control buttons -->
-		<div class="button-container" id="button-container">
-			<button onclick="moveModel('x', 0.1)">Move X+</button>
-			<button onclick="moveModel('x', -0.1)">Move X-</button>
-			<button onclick="moveModel('y', 0.1)">Move Y+</button>
-			<button onclick="moveModel('y', -0.1)">Move Y-</button>
-			<button onclick="moveModel('z', 0.1)">Move Z+</button>
-			<button onclick="moveModel('z', -0.1)">Move Z-</button>
-			<button onclick="scaleModel(0.1)">Scale +</button>
-			<button onclick="scaleModel(-0.1)">Scale -</button>
-		</div>
+		<!-- The button container will be added dynamically when AR starts -->
 
 		<script type="module">
 			import * as THREE from 'https://esm.sh/three@0.168.0';
@@ -73,7 +63,6 @@
 			let hitTestSource = null;
 			let hitTestSourceRequested = false;
 			let modelPlaced = false;
-			let buttonContainer;
 
 			init();
 			animate();
@@ -131,18 +120,9 @@
 				controller.addEventListener('select', onSelect);
 				scene.add(controller);
 
-				// Cache the button container
-				buttonContainer = document.getElementById('button-container');
-
-				// Show buttons when AR starts
-				renderer.xr.addEventListener('sessionstart', () => {
-					buttonContainer.style.display = 'flex'; // Show buttons in AR
-				});
-
-				// Hide buttons when AR ends
-				renderer.xr.addEventListener('sessionend', () => {
-					buttonContainer.style.display = 'none'; // Hide buttons outside AR
-				});
+				// Handle the AR session starting and ending
+				renderer.xr.addEventListener('sessionstart', onSessionStart);
+				renderer.xr.addEventListener('sessionend', onSessionEnd);
 
 				window.addEventListener('resize', onWindowResize);
 			}
@@ -189,6 +169,32 @@
 							console.error("Error creating anchor:", err);
 						}
 					}
+				}
+			}
+
+			// Function to add buttons dynamically in AR
+			function onSessionStart() {
+				// Create button container dynamically
+				const buttonContainer = document.createElement('div');
+				buttonContainer.classList.add('button-container');
+				buttonContainer.innerHTML = `
+					<button onclick="moveModel('x', 0.1)">Move X+</button>
+					<button onclick="moveModel('x', -0.1)">Move X-</button>
+					<button onclick="moveModel('y', 0.1)">Move Y+</button>
+					<button onclick="moveModel('y', -0.1)">Move Y-</button>
+					<button onclick="moveModel('z', 0.1)">Move Z+</button>
+					<button onclick="moveModel('z', -0.1)">Move Z-</button>
+					<button onclick="scaleModel(0.1)">Scale +</button>
+					<button onclick="scaleModel(-0.1)">Scale -</button>
+				`;
+				document.body.appendChild(buttonContainer);
+			}
+
+			// Function to remove buttons when the AR session ends
+			function onSessionEnd() {
+				const buttonContainer = document.querySelector('.button-container');
+				if (buttonContainer) {
+					buttonContainer.remove();
 				}
 			}
 
