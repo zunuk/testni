@@ -120,9 +120,6 @@
 				rectLight.lookAt( 15, 30, 10 );
 				scene.add( rectLight )
 
-				const rectLightHelper = new RectAreaLightHelper( rectLight );
-				rectLight.add( rectLightHelper );
-
 				// Renderer with DOM Overlay support
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 				renderer.setPixelRatio(window.devicePixelRatio);
