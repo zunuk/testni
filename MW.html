@@ -41,73 +41,11 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test<br />(Chrome Android 81+)
 		</div>
 
-		<!-- Load the latest version of Three.js and GLTFLoader from CDN -->
-		<script src="https://unpkg.com/three@latest/build/three.min.js"></script>
-		<script src="https://unpkg.com/three@latest/examples/js/loaders/GLTFLoader.js"></script>
-
-		<!-- Inline ARButton.js -->
-		<script>
-			const ARButton = {
-				createButton: function (renderer, options) {
-					if (options && options.requiredFeatures && options.requiredFeatures.includes('hit-test')) {
-						const button = document.createElement('button');
-						button.style.display = 'none';
-
-						function showStartAR() {
-							let currentSession = null;
-
-							async function onSessionStarted(session) {
-								session.addEventListener('end', onSessionEnded);
-								renderer.xr.setSession(session);
-								button.textContent = 'STOP AR';
-								currentSession = session;
-								console.log("AR session started");  // Debugging log
-							}
-
-							function onSessionEnded() {
-								currentSession.removeEventListener('end', onSessionEnded);
-								button.textContent = 'START AR';
-								currentSession = null;
-								console.log("AR session ended");  // Debugging log
-							}
-
-							button.textContent = 'START AR';
-							button.style.display = '';
-							button.onclick = async function () {
-								if (currentSession === null) {
-									try {
-										const session = await navigator.xr.requestSession('immersive-ar', {
-											requiredFeatures: ['hit-test'],
-										});
-										onSessionStarted(session);
-									} catch (err) {
-										console.warn('AR not supported', err);
-									}
-								} else {
-									currentSession.end();
-								}
-							};
-						}
-
-						if ('xr' in navigator) {
-							navigator.xr.isSessionSupported('immersive-ar').then(function (supported) {
-								if (supported) showStartAR();
-								else console.warn("AR not supported");
-							});
-						} else {
-							const warning = document.createElement('a');
-							warning.href = 'https://immersiveweb.dev/';
-							warning.innerHTML = 'AR NOT SUPPORTED';
-							button.parentNode.insertBefore(warning, button);
-						}
-
-						return button;
-					}
-				},
-			};
-		</script>
-
-		<script>
+		<!-- Use ES Modules for Three.js and GLTFLoader -->
+		<script type="module">
+			import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
+			import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/loaders/GLTFLoader.js';
+			import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/webxr/ARButton.js';
 
 			let container;
 			let camera, scene, renderer;
@@ -123,131 +61,113 @@
 
 			function init() {
 
-				container = document.createElement( 'div' );
-				document.body.appendChild( container );
+				container = document.createElement('div');
+				document.body.appendChild(container);
 
 				scene = new THREE.Scene();
 
-				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
-				light.position.set( 0.5, 1, 0.25 );
-				scene.add( light );
+				const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+				light.position.set(0.5, 1, 0.25);
+				scene.add(light);
 
 				// Renderer with WebXR support enabled
-				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
 				renderer.xr.enabled = true;
-				container.appendChild( renderer.domElement );
+				container.appendChild(renderer.domElement);
 
 				// Add AR button to the webpage
-				const arButton = ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] });
+				const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] });
 				document.body.appendChild(arButton);
-				console.log("ARButton added");  // Debugging log
+				console.log("ARButton added");
 
 				// Reticle for detecting planes
 				reticle = new THREE.Mesh(
-					new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+					new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
 					new THREE.MeshBasicMaterial({ color: 0x0fff00 })
 				);
 				reticle.matrixAutoUpdate = false;
 				reticle.visible = false;
-				scene.add( reticle );
-				console.log("Reticle added to scene");  // Debugging log
+				scene.add(reticle);
+				console.log("Reticle added to scene");
 
 				// Load the GLTF model
-				const loader = new THREE.GLTFLoader();
+				const loader = new GLTFLoader();
 				loader.load('https://zunuk.github.io/testni/Finito3.glb', function (gltf) {
 					gltfModel = gltf.scene;
 					gltfModel.scale.set(0.5, 0.5, 0.5); // Adjust scale if necessary
-					console.log("Model loaded");  // Debugging log
+					console.log("Model loaded");
 				}, undefined, function (error) {
 					console.error('An error occurred loading the model', error);
 				});
 
 				// Add event listener for selecting AR location
-				controller = renderer.xr.getController( 0 );
-				controller.addEventListener( 'select', onSelect );
-				scene.add( controller );
+				controller = renderer.xr.getController(0);
+				controller.addEventListener('select', onSelect);
+				scene.add(controller);
 
-				window.addEventListener( 'resize', onWindowResize );
-
+				window.addEventListener('resize', onWindowResize);
 			}
 
 			function onSelect() {
-
-				if ( reticle.visible && gltfModel ) {
+				if (reticle.visible && gltfModel) {
 					const clone = gltfModel.clone();
 					reticle.matrix.decompose(clone.position, clone.quaternion, clone.scale);
 					scene.add(clone);
-					console.log("Model placed");  // Debugging log
+					console.log("Model placed");
 				}
-
 			}
 
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize(window.innerWidth, window.innerHeight);
 			}
 
-			function animate( timestamp, frame ) {
-
-				if ( frame ) {
-
+			function animate(timestamp, frame) {
+				if (frame) {
 					const referenceSpace = renderer.xr.getReferenceSpace();
 					const session = renderer.xr.getSession();
 
-					if ( hitTestSourceRequested === false ) {
-
-						session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
-
-							session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
+					if (hitTestSourceRequested === false) {
+						session.requestReferenceSpace('viewer').then(function (referenceSpace) {
+							session.requestHitTestSource({ space: referenceSpace }).then(function (source) {
 								hitTestSource = source;
-								console.log("Hit test source requested");  // Debugging log
-							} );
+								console.log("Hit test source requested");
+							});
+						});
 
-						} );
-
-						session.addEventListener( 'end', function () {
+						session.addEventListener('end', function () {
 							hitTestSourceRequested = false;
 							hitTestSource = null;
-							console.log("Session ended");  // Debugging log
-						} );
+							console.log("Session ended");
+						});
 
 						hitTestSourceRequested = true;
-
 					}
 
-					if ( hitTestSource ) {
+					if (hitTestSource) {
+						const hitTestResults = frame.getHitTestResults(hitTestSource);
 
-						const hitTestResults = frame.getHitTestResults( hitTestSource );
-
-						if ( hitTestResults.length ) {
-
-							const hit = hitTestResults[ 0 ];
+						if (hitTestResults.length) {
+							const hit = hitTestResults[0];
 							reticle.visible = true;
-							reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
-							console.log("Hit test success: Reticle visible");  // Debugging log
-
+							reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+							console.log("Hit test success: Reticle visible");
 						} else {
-
 							reticle.visible = false;
-							console.log("No hit test results");  // Debugging log
-
+							console.log("No hit test results");
 						}
-
 					}
-
 				}
 
-				renderer.render( scene, camera );
-
+				renderer.render(scene, camera);
 			}
 
 			renderer.setAnimationLoop(animate);
-
 		</script>
 
 	</body>
