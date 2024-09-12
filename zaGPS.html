@@ -142,6 +142,9 @@
             <button onclick="updateModelCoordinates()">Set Coordinates</button>
             <h3>Device Coordinates</h3>
             <p id="device-coordinates">Latitude: , Longitude: </p>
+                <!-- Add this paragraph to display the distance -->
+            <h3>Distance to Model</h3>
+            <p id="distance-to-model">Distance: N/A meters</p>
         </div>
     </div>
 
@@ -157,6 +160,21 @@
     let longitudeInput;
     let yPositionInput;
     let deviceCoordinatesDisplay;
+
+    // Function to calculate the distance between two GPS coordinates (Haversine formula)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Radius of the Earth in meters
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in meters
+    return distance;
+}
+
 
     // Update the model's GPS position, y-position, scale, and rotation dynamically
     function updateModelAttributes() {
@@ -222,7 +240,14 @@
         navigator.geolocation.watchPosition((position) => {
             const deviceLatitude = position.coords.latitude;
             const deviceLongitude = position.coords.longitude;
-
+     
+            // Calculate the distance between the camera (device) and the model
+        const distance = calculateDistance(deviceLatitude, deviceLongitude, latitude, longitude);
+        
+        // Update the <p> element with the distance to the model
+        const distanceDisplay = document.getElementById('distance-to-model');
+        distanceDisplay.innerText = `Distance: ${distance.toFixed(2)} meters`;
+            
             // Only update the displayed device coordinates, not the model's coordinates
             deviceCoordinatesDisplay.innerText = `Latitude: ${deviceLatitude}, Longitude: ${deviceLongitude}`;
         }, (error) => {
