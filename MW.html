@@ -40,11 +40,11 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test<br />(Chrome Android 81+)
 		</div>
 
-		<!-- ES Modules for Three.js and related components using esm.run -->
+		<!-- Automatically load the latest versions of Three.js and GLTFLoader.js -->
 		<script type="module">
-			import * as THREE from 'https://esm.run/three@0.168.0';
-			import { GLTFLoader } from 'https://esm.run/three@0.168.0/examples/jsm/loaders/GLTFLoader.js';
-			import { ARButton } from 'https://esm.run/three@0.168.0/examples/jsm/webxr/ARButton.js';
+			import * as THREE from 'https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js';
+			import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/loaders/GLTFLoader.js';
+			import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/webxr/ARButton.js';
 
 			let container;
 			let camera, scene, renderer;
