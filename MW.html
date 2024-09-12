@@ -30,11 +30,12 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test<br />(Chrome Android 81+)
 		</div>
 
-		<script type="module">
+		<!-- Load Three.js and GLTFLoader from CDN -->
+		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/build/three.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/js/loaders/GLTFLoader.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/jsm/webxr/ARButton.js"></script>
 
-			import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.139.0/build/three.module.js';
-			import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.139.0/examples/jsm/webxr/ARButton.js';
-			import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.139.0/examples/jsm/loaders/GLTFLoader.js';
+		<script>
 
 			let container;
 			let camera, scene, renderer;
@@ -69,7 +70,7 @@
 				container.appendChild( renderer.domElement );
 
 				// Add AR button to the webpage
-				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+				document.body.appendChild( THREE.ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
 				// Reticle for detecting planes
 				reticle = new THREE.Mesh(
@@ -81,7 +82,7 @@
 				scene.add( reticle );
 
 				// Load the GLTF model
-				const loader = new GLTFLoader();
+				const loader = new THREE.GLTFLoader();
 				loader.load('https://zunuk.github.io/testni/Finito3.glb', function (gltf) {
 					gltfModel = gltf.scene;
 					gltfModel.scale.set(0.5, 0.5, 0.5); // Adjust scale if necessary
