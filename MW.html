@@ -33,7 +33,65 @@
 		<!-- Load Three.js and GLTFLoader from a reliable CDN -->
 		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/build/three.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/js/loaders/GLTFLoader.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/js/webxr/ARButton.js"></script>
+
+		<!-- Inline ARButton.js -->
+		<script>
+			const ARButton = {
+				createButton: function (renderer, options) {
+					if (options && options.requiredFeatures && options.requiredFeatures.includes('hit-test')) {
+						const button = document.createElement('button');
+						button.style.display = 'none';
+
+						function showStartAR() {
+							let currentSession = null;
+
+							async function onSessionStarted(session) {
+								session.addEventListener('end', onSessionEnded);
+								renderer.xr.setSession(session);
+								button.textContent = 'STOP AR';
+								currentSession = session;
+							}
+
+							function onSessionEnded() {
+								currentSession.removeEventListener('end', onSessionEnded);
+								button.textContent = 'START AR';
+								currentSession = null;
+							}
+
+							button.textContent = 'START AR';
+							button.style.display = '';
+							button.onclick = async function () {
+								if (currentSession === null) {
+									try {
+										const session = await navigator.xr.requestSession('immersive-ar', {
+											requiredFeatures: ['hit-test'],
+										});
+										onSessionStarted(session);
+									} catch (err) {
+										console.warn('AR not supported', err);
+									}
+								} else {
+									currentSession.end();
+								}
+							};
+						}
+
+						if ('xr' in navigator) {
+							navigator.xr.isSessionSupported('immersive-ar').then(function (supported) {
+								if (supported) showStartAR();
+							});
+						} else {
+							const warning = document.createElement('a');
+							warning.href = 'https://immersiveweb.dev/';
+							warning.innerHTML = 'AR NOT SUPPORTED';
+							button.parentNode.insertBefore(warning, button);
+						}
+
+						return button;
+					}
+				},
+			};
+		</script>
 
 		<script>
 
@@ -70,7 +128,8 @@
 				container.appendChild( renderer.domElement );
 
 				// Add AR button to the webpage
-				document.body.appendChild( THREE.ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ));
+				const arButton = ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] });
+				document.body.appendChild(arButton);
 
 				// Reticle for detecting planes
 				reticle = new THREE.Mesh(
