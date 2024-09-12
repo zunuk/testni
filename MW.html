@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js AR - Hit Test with Anchors and Minimizable Buttons</title>
+		<title>three.js AR - Hit Test with Anchors and Buttons</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<style>
@@ -30,10 +30,10 @@
 				display: flex;
 				flex-direction: column;
 				gap: 10px;
-				pointer-events: auto; /* Interaction allowed */
 				background-color: rgba(255, 255, 255, 0.8);
 				padding: 10px;
 				border-radius: 8px;
+				pointer-events: auto;
 			}
 			button {
 				padding: 10px;
@@ -55,15 +55,7 @@
 				font-size: 16px;
 				border: none;
 				cursor: pointer;
-				pointer-events: auto; /* Interaction allowed */
-			}
-			#ar-overlay {
-				position: fixed;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				pointer-events: none; /* Prevent all interaction except button clicks */
+				pointer-events: auto;
 			}
 		</style>
 	</head>
@@ -73,24 +65,19 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test with Anchors<br />(Chrome Android 81+)
 		</div>
 
-		<!-- AR interaction overlay -->
-		<div id="ar-overlay">
-			<!-- Minimized button window -->
-			<div class="button-container" id="button-container">
-				<button onclick="moveModel('x', 0.1)">Move X+</button>
-				<button onclick="moveModel('x', -0.1)">Move X-</button>
-				<button onclick="moveModel('y', 0.1)">Move Y+</button>
-				<button onclick="moveModel('y', -0.1)">Move Y-</button>
-				<button onclick="moveModel('z', 0.1)">Move Z+</button>
-				<button onclick="moveModel('z', -0.1)">Move Z-</button>
-				<button onclick="scaleModel(0.1)">Scale +</button>
-				<button onclick="scaleModel(-0.1)">Scale -</button>
-				<!-- New Hit/Anchor button -->
-				<button onclick="hitAndAnchor()">Hit/Anchor</button>
-			</div>
-			<!-- Toggle button for the button container -->
-			<button id="toggle-buttons" onclick="toggleButtonWindow()">Minimize</button>
+		<!-- Button window -->
+		<div class="button-container" id="button-container">
+			<button onclick="moveModel('x', 0.1)">Move X+</button>
+			<button onclick="moveModel('x', -0.1)">Move X-</button>
+			<button onclick="moveModel('y', 0.1)">Move Y+</button>
+			<button onclick="moveModel('y', -0.1)">Move Y-</button>
+			<button onclick="moveModel('z', 0.1)">Move Z+</button>
+			<button onclick="moveModel('z', -0.1)">Move Z-</button>
+			<button onclick="scaleModel(0.1)">Scale +</button>
+			<button onclick="scaleModel(-0.1)">Scale -</button>
+			<button onclick="hitAndAnchor()">Hit/Anchor</button> <!-- Hit/Anchor button -->
 		</div>
+		<button id="toggle-buttons" onclick="toggleButtonWindow()">Minimize</button>
 
 		<script type="module">
 			import * as THREE from 'https://esm.sh/three@0.168.0';
@@ -110,7 +97,7 @@
 
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-				// Realistic lighting setup
+				// Lighting setup
 				const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 				scene.add(ambientLight);
 
@@ -118,7 +105,7 @@
 				directionalLight.position.set(1, 2, 3).normalize();
 				scene.add(directionalLight);
 
-				// Renderer with DOM Overlay feature
+				// Renderer with DOM Overlay support
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(window.innerWidth, window.innerHeight);
@@ -129,7 +116,7 @@
 				const arButton = ARButton.createButton(renderer, {
 					requiredFeatures: ['hit-test', 'dom-overlay'],
 					optionalFeatures: ['anchors'],
-					domOverlay: { root: document.body } // Ensure both buttons and minimize button are inside DOM overlay
+					domOverlay: { root: document.body } // Add buttons to the DOM overlay
 				});
 				document.body.appendChild(arButton);
 
@@ -154,29 +141,29 @@
 				window.addEventListener('resize', onWindowResize);
 			}
 
-			// Function to handle hit-test and anchor
+			// Function for hit-test and anchor logic
 			async function hitAndAnchor() {
 				const session = renderer.xr.getSession();
 				const referenceSpace = renderer.xr.getReferenceSpace();
 
 				if (!modelPlaced && reticle.visible && gltfModel) {
-					// Clone and place the model
+					// Place the model
 					model = gltfModel.clone();
 					reticle.matrix.decompose(model.position, model.quaternion, model.scale);
 					scene.add(model);
 
-					// Add red sphere at anchor point
+					// Add a red sphere to indicate the anchor point
 					sphere = new THREE.Mesh(
 						new THREE.SphereGeometry(0.25, 32, 32),  // 0.5m diameter
 						new THREE.MeshBasicMaterial({ color: 0xff0000 })
 					);
-					sphere.position.copy(model.position);  // Place sphere at model's position
+					sphere.position.copy(model.position);  // Place sphere at the model's position
 					scene.add(sphere);
 
 					modelPlaced = true;
-					console.log("Model placed with anchor");
+					console.log("Model placed and anchored.");
 
-					// Create an anchor at the hit-test location
+					// Anchor at the hit-test location
 					const hitTestResults = session.requestHitTestSourceResults();
 
 					if (hitTestResults && hitTestResults.length > 0) {
@@ -185,7 +172,7 @@
 
 						try {
 							const anchor = await session.requestAnchor(anchorPose.transform.matrix, hit.anchorSpace);
-							console.log("Anchor created at hit-test location");
+							console.log("Anchor created.");
 						} catch (err) {
 							console.error("Error creating anchor:", err);
 						}
@@ -197,7 +184,7 @@
 					model = null;
 					sphere = null;
 					modelPlaced = false;
-					console.log("Model unanchored and removed");
+					console.log("Model unanchored and removed.");
 				}
 			}
 
