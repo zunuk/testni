@@ -24,7 +24,7 @@
 			}
 			.button-container {
 				position: fixed;
-				bottom: 50px; /* Moved to avoid overlapping with minimize button */
+				bottom: 50px;
 				left: 10px;
 				z-index: 9999;
 				display: flex;
@@ -46,7 +46,7 @@
 			}
 			#toggle-buttons {
 				position: fixed;
-				bottom: 10px; /* Ensure it's below the buttons */
+				bottom: 10px;
 				left: 10px;
 				z-index: 9999;
 				padding: 10px;
@@ -116,7 +116,7 @@
 				const arButton = ARButton.createButton(renderer, {
 					requiredFeatures: ['hit-test', 'dom-overlay'],
 					optionalFeatures: ['anchors'],
-					domOverlay: { root: document.body } // Make sure both buttons are inside DOM overlay
+					domOverlay: { root: document.body } // Ensure both buttons and minimize button are inside DOM overlay
 				});
 				document.body.appendChild(arButton);
 
@@ -145,15 +145,16 @@
 
 				window.addEventListener('resize', onWindowResize);
 
-				// Prevent AR `select` event from triggering on button clicks
+				// Ensure buttons stop propagation and do not trigger WebXR's `select` event
 				document.querySelectorAll('button').forEach(button => {
 					button.addEventListener('click', (event) => {
-						event.stopPropagation();
+						event.stopPropagation(); // Prevent the event from reaching AR interaction
 					});
 				});
 			}
 
 			async function onSelect() {
+				// Handle anchoring and unanchoring of model
 				if (modelPlaced) {
 					// Unanchor and remove the model
 					scene.remove(model);
@@ -198,6 +199,7 @@
 				}
 			}
 
+			// Function to move the model in the specified axis
 			function moveModel(axis, value) {
 				if (model) {
 					model.position[axis] += value;
@@ -206,6 +208,7 @@
 				}
 			}
 
+			// Function to scale the model
 			function scaleModel(value) {
 				if (model) {
 					const newScale = Math.max(0.1, model.scale.x + value);
@@ -214,12 +217,14 @@
 				}
 			}
 
+			// Handle window resize
 			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize(window.innerWidth, window.innerHeight);
 			}
 
+			// Animation loop
 			function animate(timestamp, frame) {
 				if (frame) {
 					const referenceSpace = renderer.xr.getReferenceSpace();
