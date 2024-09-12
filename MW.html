@@ -107,6 +107,15 @@
 				directionalLight.position.set(0, 30, 0).normalize();
 				scene.add(directionalLight);
 
+				// Add a light from the ground oriented upwards
+				const groundLight = new THREE.SpotLight(0xffffff, 3.5); // You can also use THREE.PointLight
+				groundLight.position.set(0, 0, 0); // Position the light below the model
+				groundLight.target.position.set(0, 30, 0); // Pointing upwards
+				groundLight.angle = Math.PI / 2; // Set the angle to cover the model
+				scene.add(groundLight);
+				scene.add(groundLight.target); // Add the light target to the scene
+
+
 				// Renderer with DOM Overlay support
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 				renderer.setPixelRatio(window.devicePixelRatio);
