@@ -11,37 +11,13 @@
             overflow: hidden;
         }
 
-        .controls, .scale-controls, .location-controls, .input-controls {
+        .controls {
             position: absolute;
+            bottom: 10px;
+            left: 10px;
             background-color: rgba(255, 255, 255, 0.7);
             padding: 10px;
             border-radius: 5px;
-        }
-
-        .controls {
-            bottom: 10px;
-            left: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .scale-controls {
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-
-        .location-controls {
-            top: 50px;
-            right: 10px;
-        }
-
-        .input-controls {
-            top: 100px;
-            right: 10px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -64,6 +40,8 @@
     let controller;
     let reticle;
     let model;
+    let hitTestSource = null;
+    let hitTestSourceRequested = false;
     let scale = 1;
 
     init();
@@ -117,7 +95,7 @@
     }
 
     function onSelect() {
-        if (reticle.visible) {
+        if (reticle.visible && model) {
             const modelClone = model.clone();
             modelClone.position.setFromMatrixPosition(reticle.matrix);
             scene.add(modelClone);
@@ -136,18 +114,29 @@
 
     function render(timestamp, frame) {
         if (frame) {
-            const referenceSpace = renderer.xr.getReferenceSpace();
             const session = renderer.xr.getSession();
+            const viewerSpace = renderer.xr.getReferenceSpace();
 
-            const hitTestSource = session.requestReferenceSpace('viewer')
-                .then((refSpace) => session.requestHitTestSource({ space: refSpace }))
-                .catch((error) => console.error("Hit test error:", error));
+            if (!hitTestSourceRequested) {
+                session.requestReferenceSpace('viewer').then((referenceSpace) => {
+                    session.requestHitTestSource({ space: referenceSpace }).then((source) => {
+                        hitTestSource = source;
+                    });
+                });
+
+                session.addEventListener('end', () => {
+                    hitTestSourceRequested = false;
+                    hitTestSource = null;
+                });
+
+                hitTestSourceRequested = true;
+            }
 
             if (hitTestSource) {
                 const hitTestResults = frame.getHitTestResults(hitTestSource);
-                if (hitTestResults.length) {
+                if (hitTestResults.length > 0) {
                     const hit = hitTestResults[0];
-                    const pose = hit.getPose(referenceSpace);
+                    const pose = hit.getPose(viewerSpace);
 
                     reticle.visible = true;
                     reticle.matrix.fromArray(pose.transform.matrix);
@@ -172,7 +161,6 @@
 
 <!-- Control Buttons for Position, Rotation, and Y-Position -->
 <div class="controls">
-    <h3>Move Model</h3>
     <button onclick="changeScale(0.1)">Scale +</button>
     <button onclick="changeScale(-0.1)">Scale -</button>
 </div>
