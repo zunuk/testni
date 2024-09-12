@@ -104,7 +104,7 @@
 				scene.add(ambientLight);
 				
 				const directionalLight = new THREE.DirectionalLight(0xffffff, 8.0);
-				directionalLight.position.set(15, 30, 10).normalize();
+				directionalLight.position.set(-15, 30, -10).normalize();
 				scene.add(directionalLight);
 				
 				// Add Hemisphere light
@@ -116,8 +116,8 @@
 				const height = 20;
 				const intensity = 8;
 				const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
-				rectLight.position.set( 15, 0, 10 );
-				rectLight.lookAt( 15, 30, 10 );
+				rectLight.position.set( -15, 0, -10 );
+				rectLight.lookAt( -15, 30, -10 );
 				scene.add( rectLight )
 
 				// Renderer with DOM Overlay support
