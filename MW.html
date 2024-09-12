@@ -100,25 +100,35 @@
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
 				// Lighting setup
-				const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+				const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); // Balanced ambient light
 				scene.add(ambientLight);
 				
-				const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
-				directionalLight.position.set(-15, 30, -10).normalize();
+				const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); // Stronger directional light
+				directionalLight.position.set(10, 20, 10).normalize();
 				scene.add(directionalLight);
 				
-				// Add Hemisphere light
-				const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 2);
-				scene.add(light);
-
+				// Four white Point Lights from different directions
 				
-				const width = 30;
-				const height = 20;
-				const intensity = 2;
-				const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
-				rectLight.position.set( -15, 0, -10 );
-				rectLight.lookAt( -15, 30, -10 );
-				scene.add( rectLight )
+				// Point Light 1: Front-Left
+				const pointLight1 = new THREE.PointLight(0xffffff, 1.5, 50); // White light
+				pointLight1.position.set(-10, 10, 10); // Front-left
+				scene.add(pointLight1);
+				
+				// Point Light 2: Front-Right
+				const pointLight2 = new THREE.PointLight(0xffffff, 1.5, 50); // White light
+				pointLight2.position.set(10, 10, 10); // Front-right
+				scene.add(pointLight2);
+				
+				// Point Light 3: Back-Left
+				const pointLight3 = new THREE.PointLight(0xffffff, 1.5, 50); // White light
+				pointLight3.position.set(-10, 10, -10); // Back-left
+				scene.add(pointLight3);
+				
+				// Point Light 4: Back-Right
+				const pointLight4 = new THREE.PointLight(0xffffff, 1.5, 50); // White light
+				pointLight4.position.set(10, 10, -10); // Back-right
+				scene.add(pointLight4);
+
 
 				// Renderer with DOM Overlay support
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
