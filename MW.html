@@ -34,17 +34,19 @@
 
 			import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.139.0/build/three.module.js';
 			import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.139.0/examples/jsm/webxr/ARButton.js';
+			import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.139.0/examples/jsm/loaders/GLTFLoader.js';
 
 			let container;
 			let camera, scene, renderer;
 			let controller;
-
 			let reticle;
+			let model; // To store the loaded model
 
 			let hitTestSource = null;
 			let hitTestSourceRequested = false;
 
 			init();
+			animate();
 
 			function init() {
 
@@ -69,6 +71,15 @@
 				// Add AR button to the webpage
 				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
+				// Load the GLTF model
+				const loader = new GLTFLoader();
+				loader.load('https://zunuk.github.io/testni/Finito3.glb', function (gltf) {
+					model = gltf.scene;
+					model.scale.set(1, 1, 1);  // Adjust the scale as necessary
+				}, undefined, function (error) {
+					console.error('An error occurred while loading the model: ', error);
+				});
+
 				// Reticle for detecting planes
 				reticle = new THREE.Mesh(
 					new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
@@ -89,12 +100,12 @@
 
 			function onSelect() {
 
-				if ( reticle.visible ) {
-					const geometry = new THREE.CylinderGeometry( 0.1, 0.1, 0.2, 32 ).translate( 0, 0.1, 0 );
-					const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
-					const mesh = new THREE.Mesh( geometry, material );
-					reticle.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
-					scene.add( mesh );
+				if ( reticle.visible && model ) {
+					// Clone the model and place it at the reticle position
+					const modelClone = model.clone();
+					reticle.matrix.decompose(modelClone.position, modelClone.quaternion, modelClone.scale);
+					modelClone.scale.set(1, 1, 1); // Adjust the scale if necessary
+					scene.add( modelClone );
 				}
 
 			}
