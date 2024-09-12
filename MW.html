@@ -22,7 +22,6 @@
 				z-index: 1;
 				pointer-events: none;
 			}
-			/* Force the AR button to be visible for debugging */
 			button {
 				position: absolute;
 				top: 10px;
@@ -41,11 +40,11 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test<br />(Chrome Android 81+)
 		</div>
 
-		<!-- Use ES Modules for Three.js and GLTFLoader -->
+		<!-- ES Modules for Three.js and related components using Skypack -->
 		<script type="module">
-			import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
-			import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/loaders/GLTFLoader.js';
-			import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/webxr/ARButton.js';
+			import * as THREE from 'https://cdn.skypack.dev/three@0.168.0';
+			import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.168.0/examples/jsm/loaders/GLTFLoader.js';
+			import { ARButton } from 'https://cdn.skypack.dev/three@0.168.0/examples/jsm/webxr/ARButton.js';
 
 			let container;
 			let camera, scene, renderer;
