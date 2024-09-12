@@ -85,6 +85,8 @@
 				<button onclick="moveModel('z', -0.1)">Move Z-</button>
 				<button onclick="scaleModel(0.1)">Scale +</button>
 				<button onclick="scaleModel(-0.1)">Scale -</button>
+				<!-- New Hit/Anchor button -->
+				<button onclick="hitAndAnchor()">Hit/Anchor</button>
 			</div>
 			<!-- Toggle button for the button container -->
 			<button id="toggle-buttons" onclick="toggleButtonWindow()">Minimize</button>
@@ -149,33 +151,15 @@
 					console.error('Error loading model:', error);
 				});
 
-				// Add event listener for selecting AR location
-				const controller = renderer.xr.getController(0);
-				controller.addEventListener('select', onSelect);
-				scene.add(controller);
-
 				window.addEventListener('resize', onWindowResize);
-
-				// Prevent WebXR's `select` event from firing on button clicks
-				document.querySelectorAll('button').forEach(button => {
-					button.addEventListener('click', (event) => {
-						event.preventDefault(); // Prevent default action
-						event.stopPropagation(); // Prevent event propagation to WebXR
-					});
-				});
 			}
 
-			async function onSelect() {
-				// Handle anchoring and unanchoring of model
-				if (modelPlaced) {
-					// Unanchor and remove the model
-					scene.remove(model);
-					scene.remove(sphere);
-					model = null;
-					sphere = null;
-					modelPlaced = false;
-					console.log("Model unanchored and removed");
-				} else if (reticle.visible && gltfModel) {
+			// Function to handle hit-test and anchor
+			async function hitAndAnchor() {
+				const session = renderer.xr.getSession();
+				const referenceSpace = renderer.xr.getReferenceSpace();
+
+				if (!modelPlaced && reticle.visible && gltfModel) {
 					// Clone and place the model
 					model = gltfModel.clone();
 					reticle.matrix.decompose(model.position, model.quaternion, model.scale);
@@ -193,8 +177,6 @@
 					console.log("Model placed with anchor");
 
 					// Create an anchor at the hit-test location
-					const session = renderer.xr.getSession();
-					const referenceSpace = renderer.xr.getReferenceSpace();
 					const hitTestResults = session.requestHitTestSourceResults();
 
 					if (hitTestResults && hitTestResults.length > 0) {
@@ -208,6 +190,14 @@
 							console.error("Error creating anchor:", err);
 						}
 					}
+				} else if (modelPlaced) {
+					// Unanchor and remove the model
+					scene.remove(model);
+					scene.remove(sphere);
+					model = null;
+					sphere = null;
+					modelPlaced = false;
+					console.log("Model unanchored and removed");
 				}
 			}
 
