@@ -67,18 +67,18 @@
 
 		<!-- Minimized button window -->
 		<div class="button-container" id="button-container">
-			<button onclick="moveModel('x', 0.1)">Move X+</button>
-			<button onclick="moveModel('x', -0.1)">Move X-</button>
-			<button onclick="moveModel('y', 0.1)">Move Y+</button>
-			<button onclick="moveModel('y', -0.1)">Move Y-</button>
-			<button onclick="moveModel('z', 0.1)">Move Z+</button>
-			<button onclick="moveModel('z', -0.1)">Move Z-</button>
-			<button onclick="scaleModel(0.1)">Scale +</button>
-			<button onclick="scaleModel(-0.1)">Scale -</button>
+			<button class="ar-button" onclick="moveModel('x', 0.1)">Move X+</button>
+			<button class="ar-button" onclick="moveModel('x', -0.1)">Move X-</button>
+			<button class="ar-button" onclick="moveModel('y', 0.1)">Move Y+</button>
+			<button class="ar-button" onclick="moveModel('y', -0.1)">Move Y-</button>
+			<button class="ar-button" onclick="moveModel('z', 0.1)">Move Z+</button>
+			<button class="ar-button" onclick="moveModel('z', -0.1)">Move Z-</button>
+			<button class="ar-button" onclick="scaleModel(0.1)">Scale +</button>
+			<button class="ar-button" onclick="scaleModel(-0.1)">Scale -</button>
 		</div>
 
 		<!-- Toggle button for the button container -->
-		<button id="toggle-buttons" onclick="toggleButtonWindow()">Minimize</button>
+		<button id="toggle-buttons" class="ar-button" onclick="toggleButtonWindow()">Minimize</button>
 
 		<script type="module">
 			import * as THREE from 'https://esm.sh/three@0.168.0';
@@ -147,8 +147,9 @@
 				window.addEventListener('resize', onWindowResize);
 
 				// Ensure buttons stop propagation and do not trigger WebXR's `select` event
-				document.querySelectorAll('button').forEach(button => {
+				document.querySelectorAll('.ar-button').forEach(button => {
 					button.addEventListener('click', (event) => {
+						event.preventDefault(); // Prevent default action
 						event.stopPropagation(); // Prevent the event from reaching AR interaction
 					});
 				});
