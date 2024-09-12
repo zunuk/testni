@@ -107,10 +107,6 @@
 				directionalLight.position.set(1, 2, 3).normalize();
 				scene.add(directionalLight);
 
-				const directionalLight = new THREE.DirectionalLight(0xffffff, 3.0); // Increased from 1.5 to 2.0
-				directionalLight.position.set(10, 20, 30).normalize();
-				scene.add(directionalLight);
-
 				// Renderer with DOM Overlay support
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 				renderer.setPixelRatio(window.devicePixelRatio);
