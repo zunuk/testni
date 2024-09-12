@@ -22,6 +22,17 @@
 				z-index: 1;
 				pointer-events: none;
 			}
+			/* Force the AR button to be visible for debugging */
+			button {
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				z-index: 999;
+				padding: 10px;
+				background-color: green;
+				color: white;
+				font-size: 16px;
+			}
 		</style>
 	</head>
 	<body>
@@ -50,12 +61,14 @@
 								renderer.xr.setSession(session);
 								button.textContent = 'STOP AR';
 								currentSession = session;
+								console.log("AR session started");  // Debugging log
 							}
 
 							function onSessionEnded() {
 								currentSession.removeEventListener('end', onSessionEnded);
 								button.textContent = 'START AR';
 								currentSession = null;
+								console.log("AR session ended");  // Debugging log
 							}
 
 							button.textContent = 'START AR';
@@ -79,6 +92,7 @@
 						if ('xr' in navigator) {
 							navigator.xr.isSessionSupported('immersive-ar').then(function (supported) {
 								if (supported) showStartAR();
+								else console.warn("AR not supported");
 							});
 						} else {
 							const warning = document.createElement('a');
@@ -130,6 +144,7 @@
 				// Add AR button to the webpage
 				const arButton = ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] });
 				document.body.appendChild(arButton);
+				console.log("ARButton added");  // Debugging log
 
 				// Reticle for detecting planes
 				reticle = new THREE.Mesh(
@@ -139,12 +154,14 @@
 				reticle.matrixAutoUpdate = false;
 				reticle.visible = false;
 				scene.add( reticle );
+				console.log("Reticle added to scene");  // Debugging log
 
 				// Load the GLTF model
 				const loader = new THREE.GLTFLoader();
 				loader.load('https://zunuk.github.io/testni/Finito3.glb', function (gltf) {
 					gltfModel = gltf.scene;
 					gltfModel.scale.set(0.5, 0.5, 0.5); // Adjust scale if necessary
+					console.log("Model loaded");  // Debugging log
 				}, undefined, function (error) {
 					console.error('An error occurred loading the model', error);
 				});
@@ -164,6 +181,7 @@
 					const clone = gltfModel.clone();
 					reticle.matrix.decompose(clone.position, clone.quaternion, clone.scale);
 					scene.add(clone);
+					console.log("Model placed");  // Debugging log
 				}
 
 			}
@@ -187,6 +205,7 @@
 
 							session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
 								hitTestSource = source;
+								console.log("Hit test source requested");  // Debugging log
 							} );
 
 						} );
@@ -194,6 +213,7 @@
 						session.addEventListener( 'end', function () {
 							hitTestSourceRequested = false;
 							hitTestSource = null;
+							console.log("Session ended");  // Debugging log
 						} );
 
 						hitTestSourceRequested = true;
@@ -209,10 +229,12 @@
 							const hit = hitTestResults[ 0 ];
 							reticle.visible = true;
 							reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
+							console.log("Hit test success: Reticle visible");  // Debugging log
 
 						} else {
 
 							reticle.visible = false;
+							console.log("No hit test results");  // Debugging log
 
 						}
 
