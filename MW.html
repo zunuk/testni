@@ -100,11 +100,11 @@
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
 				// Increased Lighting
-				const ambientLight = new THREE.AmbientLight(0xffffff, 3.0); // Increased from 0.7 to 1.0
+				const ambientLight = new THREE.AmbientLight(0xffffff, 6.0); // Increased from 0.7 to 1.0
 				scene.add(ambientLight);
 
-				const directionalLight = new THREE.DirectionalLight(0xffffff, 3.0); // Increased from 1.5 to 2.0
-				directionalLight.position.set(1, 2, 3).normalize();
+				const directionalLight = new THREE.DirectionalLight(0xffffff, 4.0); // Increased from 1.5 to 2.0
+				directionalLight.position.set(0, 30, 0).normalize();
 				scene.add(directionalLight);
 
 				// Renderer with DOM Overlay support
@@ -121,6 +121,10 @@
 					domOverlay: { root: document.body } // Add buttons to the DOM overlay
 				});
 				document.body.appendChild(arButton);
+
+				// Change the AR button style to make it blue or darker
+				arButton.style.backgroundColor = 'blue'; // or use a darker color like '#333'
+				arButton.style.color = 'white'; // Change text color to white for better contrast
 
 				// Reticle for detecting planes
 				reticle = new THREE.Mesh(
