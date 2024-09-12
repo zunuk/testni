@@ -24,7 +24,7 @@
 			}
 			.button-container {
 				position: fixed;
-				bottom: 10px;
+				bottom: 50px; /* Moved to avoid overlapping with minimize button */
 				left: 10px;
 				z-index: 9999;
 				display: flex;
@@ -46,7 +46,7 @@
 			}
 			#toggle-buttons {
 				position: fixed;
-				bottom: 10px;
+				bottom: 10px; /* Ensure it's below the buttons */
 				left: 10px;
 				z-index: 9999;
 				padding: 10px;
@@ -116,7 +116,7 @@
 				const arButton = ARButton.createButton(renderer, {
 					requiredFeatures: ['hit-test', 'dom-overlay'],
 					optionalFeatures: ['anchors'],
-					domOverlay: { root: document.getElementById('button-container') } // Attach the button container as the DOM overlay
+					domOverlay: { root: document.body } // Make sure both buttons are inside DOM overlay
 				});
 				document.body.appendChild(arButton);
 
@@ -144,6 +144,13 @@
 				scene.add(controller);
 
 				window.addEventListener('resize', onWindowResize);
+
+				// Prevent AR `select` event from triggering on button clicks
+				document.querySelectorAll('button').forEach(button => {
+					button.addEventListener('click', (event) => {
+						event.stopPropagation();
+					});
+				});
 			}
 
 			async function onSelect() {
