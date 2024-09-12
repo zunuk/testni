@@ -100,20 +100,8 @@
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
 				// Increased Lighting
-				const ambientLight = new THREE.AmbientLight(0xffffff, 6.0); // Increased from 0.7 to 1.0
+				const ambientLight = new THREE.AmbientLight(0xffffff, 20.0); // Increased from 0.7 to 1.0
 				scene.add(ambientLight);
-
-				const directionalLight = new THREE.DirectionalLight(0xffffff, 4.0); // Increased from 1.5 to 2.0
-				directionalLight.position.set(0, 30, 0).normalize();
-				scene.add(directionalLight);
-
-				// Add a light from the ground oriented upwards
-				const groundLight = new THREE.SpotLight(0xffffff, 3.5); // You can also use THREE.PointLight
-				groundLight.position.set(0, 0, 0); // Position the light below the model
-				groundLight.target.position.set(0, 30, 0); // Pointing upwards
-				groundLight.angle = Math.PI / 2; // Set the angle to cover the model
-				scene.add(groundLight);
-				scene.add(groundLight.target); // Add the light target to the scene
 
 
 				// Renderer with DOM Overlay support
