@@ -31,9 +31,9 @@
 		</div>
 
 		<!-- Load Three.js and GLTFLoader from a reliable CDN -->
-		<script src="https://unpkg.com/three@0.139.0/build/three.min.js"></script>
-		<script src="https://unpkg.com/three@0.139.0/examples/js/loaders/GLTFLoader.js"></script>
-		<script src="https://unpkg.com/three@0.139.0/examples/js/webxr/ARButton.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/build/three.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/js/loaders/GLTFLoader.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/js/webxr/ARButton.js"></script>
 
 		<script>
 
@@ -70,7 +70,7 @@
 				container.appendChild( renderer.domElement );
 
 				// Add AR button to the webpage
-				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ));
+				document.body.appendChild( THREE.ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ));
 
 				// Reticle for detecting planes
 				reticle = new THREE.Mesh(
