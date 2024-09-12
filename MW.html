@@ -100,11 +100,15 @@
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
 				// Increased Lighting
-				const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); // Increased from 0.7 to 1.0
+				const ambientLight = new THREE.AmbientLight(0xffffff, 3.0); // Increased from 0.7 to 1.0
 				scene.add(ambientLight);
 
-				const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); // Increased from 1.5 to 2.0
+				const directionalLight = new THREE.DirectionalLight(0xffffff, 3.0); // Increased from 1.5 to 2.0
 				directionalLight.position.set(1, 2, 3).normalize();
+				scene.add(directionalLight);
+
+				const directionalLight = new THREE.DirectionalLight(0xffffff, 3.0); // Increased from 1.5 to 2.0
+				directionalLight.position.set(10, 20, 30).normalize();
 				scene.add(directionalLight);
 
 				// Renderer with DOM Overlay support
@@ -156,7 +160,7 @@
 
 					// Add a red sphere to indicate the anchor point
 					sphere = new THREE.Mesh(
-						new THREE.SphereGeometry(0.25, 32, 32),  // 0.5m diameter
+						new THREE.SphereGeometry(0.1, 32, 32),  // 0.5m diameter
 						new THREE.MeshBasicMaterial({ color: 0xff0000 })
 					);
 					sphere.position.copy(model.position);  // Place sphere at the model's position
