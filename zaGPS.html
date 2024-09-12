@@ -267,7 +267,8 @@
         latitudeInput = document.getElementById('latitude-input');
         longitudeInput = document.getElementById('longitude-input');
         yPositionInput = document.getElementById('y-position-input');
-        deviceCoordinatesDisplay = document.getElementById('device-coordinates');
+        deviceCoordinatesDisplay = document.getElementById('device-coordinates')
+        useCurrentCoordinates();  // Start tracking device coordinates as soon as the page loads;
 
         if (modelEntity) {
             // Wait for the model to load before applying changes
