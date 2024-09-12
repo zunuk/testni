@@ -99,10 +99,32 @@
 
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-				// Increased Lighting
-				const ambientLight = new THREE.AmbientLight(0xffffff, 20.0); // Increased from 0.7 to 1.0
+				// Lighting setup
+				const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
 				scene.add(ambientLight);
+				
+				const directionalLight = new THREE.DirectionalLight(0xffffff, 8.0);
+				directionalLight.position.set(15, 30, 10).normalize();
+				scene.add(directionalLight);
+				
+				// Add Hemisphere light
+				const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 8);
+				scene.add(light);
 
+				const light = new THREE.PointLight( 0xff0000, 8, 0 );
+				light.position.set(15, 0, 10);
+				scene.add( light );
+
+				const width = 30;
+				const height = 20;
+				const intensity = 8;
+				const rectLight = new THREE.RectAreaLight( 0xffffff, intensity,  width, height );
+				rectLight.position.set( 15, 0, 10 );
+				rectLight.lookAt( 15, 30, 10 );
+				scene.add( rectLight )
+
+				const rectLightHelper = new RectAreaLightHelper( rectLight );
+				rectLight.add( rectLightHelper );
 
 				// Renderer with DOM Overlay support
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
