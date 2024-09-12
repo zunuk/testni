@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js AR - Hit Test with Anchors and DOM Overlay</title>
+		<title>three.js AR - Hit Test with Anchors and Minimizable Buttons</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<style>
@@ -44,6 +44,18 @@
 				cursor: pointer;
 				width: 100px;
 			}
+			#toggle-buttons {
+				position: fixed;
+				bottom: 10px;
+				left: 10px;
+				z-index: 9999;
+				padding: 10px;
+				background-color: blue;
+				color: white;
+				font-size: 16px;
+				border: none;
+				cursor: pointer;
+			}
 		</style>
 	</head>
 	<body>
@@ -52,7 +64,7 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test with Anchors<br />(Chrome Android 81+)
 		</div>
 
-		<!-- The button container -->
+		<!-- Minimized button window -->
 		<div class="button-container" id="button-container">
 			<button onclick="moveModel('x', 0.1)">Move X+</button>
 			<button onclick="moveModel('x', -0.1)">Move X-</button>
@@ -63,6 +75,9 @@
 			<button onclick="scaleModel(0.1)">Scale +</button>
 			<button onclick="scaleModel(-0.1)">Scale -</button>
 		</div>
+
+		<!-- Toggle button for the button container -->
+		<button id="toggle-buttons" onclick="toggleButtonWindow()">Minimize</button>
 
 		<script type="module">
 			import * as THREE from 'https://esm.sh/three@0.168.0';
@@ -228,6 +243,20 @@
 			}
 
 			renderer.setAnimationLoop(animate);
+
+			// Minimize or maximize the button container
+			function toggleButtonWindow() {
+				const buttonContainer = document.getElementById('button-container');
+				const toggleButton = document.getElementById('toggle-buttons');
+
+				if (buttonContainer.style.display === 'none') {
+					buttonContainer.style.display = 'flex';
+					toggleButton.textContent = 'Minimize';
+				} else {
+					buttonContainer.style.display = 'none';
+					toggleButton.textContent = 'Maximize';
+				}
+			}
 		</script>
 
 	</body>
