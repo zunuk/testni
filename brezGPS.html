@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 	<head>
 		<title>three.js AR - Hit Test with Anchors</title>
@@ -22,11 +22,16 @@
 				z-index: 1;
 				pointer-events: none;
 			}
-			button {
+			.button-container {
 				position: absolute;
-				top: 10px;
+				bottom: 10px;
 				left: 10px;
 				z-index: 999;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+			button {
 				padding: 10px;
 				background-color: green;
 				color: white;
@@ -40,26 +45,32 @@
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> AR - Hit Test with Anchors<br />(Chrome Android 81+)
 		</div>
 
-		<!-- Automatically load the latest versions of Three.js and GLTFLoader.js -->
+		<!-- Control buttons -->
+		<div class="button-container">
+			<button onclick="moveModel('x', 0.1)">Move X+</button>
+			<button onclick="moveModel('x', -0.1)">Move X-</button>
+			<button onclick="moveModel('y', 0.1)">Move Y+</button>
+			<button onclick="moveModel('y', -0.1)">Move Y-</button>
+			<button onclick="moveModel('z', 0.1)">Move Z+</button>
+			<button onclick="moveModel('z', -0.1)">Move Z-</button>
+			<button onclick="scaleModel(0.1)">Scale +</button>
+			<button onclick="scaleModel(-0.1)">Scale -</button>
+		</div>
+
 		<script type="module">
-			// Import Three.js core and other modules from esm.sh
 			import * as THREE from 'https://esm.sh/three@0.168.0';
 			import { GLTFLoader } from 'https://esm.sh/three@0.168.0/examples/jsm/loaders/GLTFLoader.js';
 			import { ARButton } from 'https://esm.sh/three@0.168.0/examples/jsm/webxr/ARButton.js';
 
-			let container;
-			let camera, scene, renderer;
-			let controller;
-			let reticle;
-			let gltfModel = null;  // Store the loaded model
+			let container, camera, scene, renderer, controller, reticle, gltfModel, model, anchor, sphere;
 			let hitTestSource = null;
 			let hitTestSourceRequested = false;
+			let modelPlaced = false;
 
 			init();
 			animate();
 
 			function init() {
-
 				container = document.createElement('div');
 				document.body.appendChild(container);
 
@@ -67,24 +78,27 @@
 
 				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-				const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-				light.position.set(0.5, 1, 0.25);
-				scene.add(light);
+				// Realistic lighting setup
+				const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+				scene.add(ambientLight);
 
-				// Renderer with WebXR support enabled
+				const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+				directionalLight.position.set(1, 2, 3).normalize();
+				scene.add(directionalLight);
+
+				// Renderer
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				renderer.xr.enabled = true;
 				container.appendChild(renderer.domElement);
 
-				// Add AR button to the webpage with optional anchor support
-				const arButton = ARButton.createButton(renderer, { 
-					requiredFeatures: ['hit-test'], 
-					optionalFeatures: ['anchors']  // Enable anchors as an optional feature
+				// Add AR button with anchor support
+				const arButton = ARButton.createButton(renderer, {
+					requiredFeatures: ['hit-test'],
+					optionalFeatures: ['anchors']
 				});
 				document.body.appendChild(arButton);
-				console.log("ARButton added");
 
 				// Reticle for detecting planes
 				reticle = new THREE.Mesh(
@@ -94,16 +108,14 @@
 				reticle.matrixAutoUpdate = false;
 				reticle.visible = false;
 				scene.add(reticle);
-				console.log("Reticle added to scene");
 
 				// Load the GLTF model
 				const loader = new GLTFLoader();
 				loader.load('https://zunuk.github.io/testni/Finito3.glb', function (gltf) {
 					gltfModel = gltf.scene;
-					gltfModel.scale.set(0.5, 0.5, 0.5); // Adjust scale if necessary
-					console.log("Model loaded");
+					gltfModel.scale.set(0.5, 0.5, 0.5); // Initial scale
 				}, undefined, function (error) {
-					console.error('An error occurred loading the model', error);
+					console.error('Error loading model:', error);
 				});
 
 				// Add event listener for selecting AR location
@@ -115,29 +127,63 @@
 			}
 
 			async function onSelect() {
-				if (reticle.visible && gltfModel) {
-					const clone = gltfModel.clone();
-					reticle.matrix.decompose(clone.position, clone.quaternion, clone.scale);
-					scene.add(clone);
-					console.log("Model placed");
+				if (modelPlaced) {
+					// Unanchor and remove the model
+					scene.remove(model);
+					scene.remove(sphere);
+					model = null;
+					sphere = null;
+					modelPlaced = false;
+					console.log("Model unanchored and removed");
+				} else if (reticle.visible && gltfModel) {
+					// Clone and place the model
+					model = gltfModel.clone();
+					reticle.matrix.decompose(model.position, model.quaternion, model.scale);
+					scene.add(model);
 
-					// Create an anchor at the hit-test location to persist the model
+					// Add red sphere at anchor point
+					sphere = new THREE.Mesh(
+						new THREE.SphereGeometry(0.25, 32, 32),  // 0.5m diameter
+						new THREE.MeshBasicMaterial({ color: 0xff0000 })
+					);
+					sphere.position.copy(model.position);  // Place sphere at model's position
+					scene.add(sphere);
+
+					modelPlaced = true;
+					console.log("Model placed with anchor");
+
+					// Create an anchor at the hit-test location
 					const session = renderer.xr.getSession();
 					const referenceSpace = renderer.xr.getReferenceSpace();
 					const hitTestResults = session.requestHitTestSourceResults();
-					
+
 					if (hitTestResults && hitTestResults.length > 0) {
 						const hit = hitTestResults[0];
 						const anchorPose = hit.getPose(referenceSpace);
-						
+
 						try {
-							const anchor = await session.requestAnchor(anchorPose.transform.matrix, hit.anchorSpace);
+							anchor = await session.requestAnchor(anchorPose.transform.matrix, hit.anchorSpace);
 							console.log("Anchor created at hit-test location");
-							// You can attach the anchor to your 3D model for better tracking persistence
 						} catch (err) {
 							console.error("Error creating anchor:", err);
 						}
 					}
+				}
+			}
+
+			function moveModel(axis, value) {
+				if (model) {
+					model.position[axis] += value;
+					sphere.position[axis] += value;  // Keep sphere in sync
+					console.log(`Model moved along ${axis} by ${value}`);
+				}
+			}
+
+			function scaleModel(value) {
+				if (model) {
+					const newScale = Math.max(0.1, model.scale.x + value);
+					model.scale.set(newScale, newScale, newScale);
+					console.log("Model scaled to", newScale);
 				}
 			}
 
@@ -156,30 +202,19 @@
 						session.requestReferenceSpace('viewer').then(function (referenceSpace) {
 							session.requestHitTestSource({ space: referenceSpace }).then(function (source) {
 								hitTestSource = source;
-								console.log("Hit test source requested");
+								hitTestSourceRequested = true;
 							});
 						});
-
-						session.addEventListener('end', function () {
-							hitTestSourceRequested = false;
-							hitTestSource = null;
-							console.log("Session ended");
-						});
-
-						hitTestSourceRequested = true;
 					}
 
 					if (hitTestSource) {
 						const hitTestResults = frame.getHitTestResults(hitTestSource);
-
 						if (hitTestResults.length) {
 							const hit = hitTestResults[0];
 							reticle.visible = true;
 							reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
-							console.log("Hit test success: Reticle visible");
 						} else {
 							reticle.visible = false;
-							console.log("No hit test results");
 						}
 					}
 				}
