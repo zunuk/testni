@@ -139,7 +139,8 @@
         // Initialize GLTFLoader with DRACOLoader for compressed models
         const loader = new GLTFLoader();
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://esm.sh/three@0.168.0/examples/js/libs/draco/'); // Set path to the Draco decoder
+         // Use JSDelivr for the Draco decoder files
+        dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.168.0/examples/js/libs/draco/');
         loader.setDRACOLoader(dracoLoader);
 
         // Load the Draco-compressed GLTF model
