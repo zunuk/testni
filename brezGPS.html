@@ -100,31 +100,81 @@
 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-        // Lighting setup
-            const ambientLight = new THREE.AmbientLight(0xffffff, 6000.5); // Ambient light to light everything equally
-            scene.add(ambientLight);
-                    // Hemisphere light: simulates light coming from above and below
-            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 3000.5);
-            hemisphereLight.position.set(-15, 30, -10); // Position it above the scene
-            scene.add(hemisphereLight);
-            
-            function addRectAreaLightForModel(model) {
-                // Compute the bounding box of the model
-                const box = new THREE.Box3().setFromObject(model);
-            
-                // Get the size of the bounding box
-                const size = new THREE.Vector3();
-                box.getSize(size);
-            
-                // Create a RectAreaLight with dimensions based on the model's bounding box
-                const rectLight = new THREE.RectAreaLight(0xffffff, 3000.5, size.x, size.z); // Size matches the model's projection on the X-Z plane
-                rectLight.position.set(-size.x / 2, 0, -size.z / 2);  // Place it below the model
-                rectLight.lookAt(-size.x / 2, 30, -size.z / 2);  // Orient the light upwards toward the model
-                scene.add(rectLight);
-            
-                            }  // <-- Missing closing bracket   
- 
+        // Function to calculate the bounding box of the model and adjust lights based on its orientation
+        function addLightsBasedOnBoundingBox(model) {
+            // Compute the bounding box of the model in world coordinates
+            const box = new THREE.Box3().setFromObject(model);
         
+            // Get the 8 corner points of the bounding box
+            const cornerPoints = [
+                new THREE.Vector3(box.min.x, box.min.y, box.min.z), // Bottom-front-left
+                new THREE.Vector3(box.min.x, box.min.y, box.max.z), // Bottom-back-left
+                new THREE.Vector3(box.max.x, box.min.y, box.min.z), // Bottom-front-right
+                new THREE.Vector3(box.max.x, box.min.y, box.max.z), // Bottom-back-right
+                new THREE.Vector3(box.min.x, box.max.y, box.min.z), // Top-front-left
+                new THREE.Vector3(box.min.x, box.max.y, box.max.z), // Top-back-left
+                new THREE.Vector3(box.max.x, box.max.y, box.min.z), // Top-front-right
+                new THREE.Vector3(box.max.x, box.max.y, box.max.z), // Top-back-right
+            ];
+        
+            // Compute the center of the bounding box
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+        
+            // Adjust light intensities based on the model's size
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const intensityScale = Math.max(size.x, size.y, size.z) / 10;
+        
+            // Ambient light for overall brightness
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.5 * intensityScale);
+            scene.add(ambientLight);
+        
+            // Hemisphere light: Light from above and below
+            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5 * intensityScale);
+            hemisphereLight.position.set(center.x, size.y * 2, center.z); // Above the model
+            scene.add(hemisphereLight);
+        
+            // Position point lights based on the bounding box corner points
+            const pointLight1 = new THREE.PointLight(0xffffff, 1.5 * intensityScale, 100);
+            pointLight1.position.copy(cornerPoints[4]); // Top-front-left
+            scene.add(pointLight1);
+        
+            const pointLight2 = new THREE.PointLight(0xffffff, 1.5 * intensityScale, 100);
+            pointLight2.position.copy(cornerPoints[5]); // Top-back-left
+            scene.add(pointLight2);
+        
+            const pointLight3 = new THREE.PointLight(0xffffff, 1.5 * intensityScale, 100);
+            pointLight3.position.copy(cornerPoints[6]); // Top-front-right
+            scene.add(pointLight3);
+        
+            const pointLight4 = new THREE.PointLight(0xffffff, 1.5 * intensityScale, 100);
+            pointLight4.position.copy(cornerPoints[7]); // Top-back-right
+            scene.add(pointLight4);
+        
+            // RectAreaLight based on the bounding box
+            const rectLight = new THREE.RectAreaLight(0xffffff, 1.0 * intensityScale, size.x, size.z);
+            rectLight.position.set(center.x, -size.y / 2, center.z); // Below the model
+            rectLight.lookAt(center.x, center.y, center.z); // Point the light toward the center of the model
+            scene.add(rectLight);
+        
+            // Optional: Visualize the lights with helpers
+            const pointLightHelper1 = new THREE.PointLightHelper(pointLight1);
+            scene.add(pointLightHelper1);
+        
+            const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
+            scene.add(pointLightHelper2);
+        
+            const pointLightHelper3 = new THREE.PointLightHelper(pointLight3);
+            scene.add(pointLightHelper3);
+        
+            const pointLightHelper4 = new THREE.PointLightHelper(pointLight4);
+            scene.add(pointLightHelper4);
+        
+            const rectLightHelper = new THREE.RectAreaLightHelper(rectLight);
+            scene.add(rectLightHelper);
+        }
+                
 
         // Renderer with DOM Overlay support
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -165,7 +215,9 @@
         loader.load('https://zunuk.github.io/testni/Finito4.glb', function (gltf) {
             gltfModel = gltf.scene;
             gltfModel.scale.set(1.0, 1.0, 1.0); // Initial scale
-           addRectAreaLightForModel(gltfModel);
+       
+        // Adjust lights based on the model's bounding box corner points
+        addLightsBasedOnBoundingBox(gltfModel);
         
         }, undefined, function (error) {
             console.error('Error loading model:', error);
