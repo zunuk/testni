@@ -106,25 +106,9 @@
             
             // Hemisphere light: simulates light coming from above and below
             const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 3.5);
-            hemisphereLight.position.set(-15, 20, -10); // Position it above the scene
+            hemisphereLight.position.set(-15, 0, -10); // Position it above the scene
             scene.add(hemisphereLight);
             
-            // Add four point lights to simulate light from all directions
-            const pointLight1 = new THREE.PointLight(0xffffff, 3.5); // Front-left
-            pointLight1.position.set(-10, 10, 10);
-            scene.add(pointLight1);
-            
-            const pointLight2 = new THREE.PointLight(0xffffff, 3.5); // Front-right
-            pointLight2.position.set(10, 10, 10);
-            scene.add(pointLight2);
-            
-            const pointLight3 = new THREE.PointLight(0xffffff, 3.5); // Back-left
-            pointLight3.position.set(-10, 10, -10);
-            scene.add(pointLight3);
-            
-            const pointLight4 = new THREE.PointLight(0xffffff, 3.5); // Back-right
-            pointLight4.position.set(10, 10, -10);
-            scene.add(pointLight4);
 
         // Renderer with DOM Overlay support
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
