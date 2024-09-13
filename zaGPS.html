@@ -85,13 +85,24 @@
             visible="true"
         ></a-entity>
 
-       <!-- Lighting Setup -->
-        <a-light type="ambient" color="#FFF" intensity="2.0"></a-light>
-        <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 20 0"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.8" position="0 20 0" castShadow="true"></a-light>
-        <a-light type="directional" color="#FFF" intensity="1.8" position="30 20 0" castShadow="true"></a-light>
-        <a-light type="point" color="#FFF" intensity="1.5" position="2 20 0"></a-light>
-         <a-light type="point" color="#FFF" intensity="1.5" position="2 20 15"></a-light>
+                <!-- Ambient light for overall illumination -->
+                <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
+            
+                <!-- Hemisphere light to simulate sky and ground lighting -->
+                <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.5" position="0 20 0"></a-light>
+            
+                <!-- Directional lights from the corner points of the model's bounding box -->
+                <a-light type="directional" color="#FFF" intensity="1.5" position="-10 10 -10" target="#model"></a-light>
+                <a-light type="directional" color="#FFF" intensity="1.5" position="10 10 -10" target="#model"></a-light>
+                <a-light type="directional" color="#FFF" intensity="1.5" position="-10 10 10" target="#model"></a-light>
+                <a-light type="directional" color="#FFF" intensity="1.5" position="10 10 10" target="#model"></a-light>
+            
+                <!-- Additional directional light to simulate lighting from below -->
+                <a-light type="directional" color="#FFF" intensity="1.5" position="0 -10 0" target="#model"></a-light>
+            
+                <!-- Point light to simulate lighting from below, mimicking a rect area light -->
+                <a-light type="point" color="#FFF" intensity="1.0" position="0 -5 0" distance="50"></a-light>
+        
     </a-scene>
 
     <!-- Control Buttons for Position, Rotation, and Y-Position -->
