@@ -132,7 +132,7 @@
                     
                         // Hemisphere light: Light from above and below
                         const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1.5 * intensityScale);
-                        hemisphereLight.position.set(center.x, size.y * 2, center.z); // Above the model
+                        hemisphereLight.position.set(center.x, size.y * 1/2, center.z); // Above the model
                         scene.add(hemisphereLight);
                     
                         // Add directional lights from the 8 corner points, pointing toward the center
