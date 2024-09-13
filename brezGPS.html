@@ -100,22 +100,6 @@
 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-                    // Function to adjust the material of the model to ensure it's light-reactive
-                    function makeMaterialsLightReactive(model) {
-                        model.traverse(function (child) {
-                            if (child.isMesh) {
-                                if (!(child.material instanceof THREE.MeshStandardMaterial)) {
-                                    child.material = new THREE.MeshStandardMaterial({
-                                        color: child.material.color || 0xffffff, // Preserve original color
-                                        metalness: 0.1,  // Adjust metalness for light reflection
-                                        roughness: 0.8,  // Adjust roughness for smoothness
-                                        side: THREE.DoubleSide // Ensure double-sided to prevent black faces
-                                    });
-                                }
-                            }
-                        });
-                    }
-
 
         
                     // Function to calculate the bounding box of the model and add directional lights based on its orientation
@@ -142,7 +126,7 @@
                         // Adjust light intensities based on the model's size
                         const size = new THREE.Vector3();
                         box.getSize(size);
-                        const intensityScale = 2;
+                        const intensityScale = 1;
                     
                         // Ambient light for overall brightness
                         const ambientLight = new THREE.AmbientLight(0xffffff, 1.5 * intensityScale);
