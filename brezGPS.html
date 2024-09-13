@@ -109,7 +109,6 @@
             hemisphereLight.position.set(-15, 0, -10); // Position it above the scene
             scene.add(hemisphereLight);
             
-                    // Function to calculate the bounding box of the model and create RectAreaLight
             function addRectAreaLightForModel(model) {
                 // Compute the bounding box of the model
                 const box = new THREE.Box3().setFromObject(model);
@@ -120,13 +119,14 @@
             
                 // Create a RectAreaLight with dimensions based on the model's bounding box
                 const rectLight = new THREE.RectAreaLight(0xffffff, 3.5, size.x, size.z); // Size matches the model's projection on the X-Z plane
-                rectLight.position.set(-size.x/2, -size.y / 2, -size.yz/2);  // Place it below the model
-                rectLight.lookAt(-size.x/2, 2*size.y / 2, -size.yz/2);  // Orient the light upwards toward the model
+                rectLight.position.set(-size.x / 2, -size.y / 2, -size.z / 2);  // Place it below the model
+                rectLight.lookAt(-size.x / 2, size.y / 2, -size.z / 2);  // Orient the light upwards toward the model
                 scene.add(rectLight);
             
                 // Optionally, add a helper to visualize the RectAreaLight
                 const rectLightHelper = new THREE.RectAreaLightHelper(rectLight);
                 scene.add(rectLightHelper);
+            }  // <-- Missing closing bracket
         
 
         // Renderer with DOM Overlay support
