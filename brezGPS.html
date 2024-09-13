@@ -232,52 +232,58 @@
         window.addEventListener('resize', onWindowResize);
     }
 
-    // Function for hit-test and anchor logic
-    async function hitAndAnchor() {
-        const session = renderer.xr.getSession();
-        const referenceSpace = renderer.xr.getReferenceSpace();
-
-        if (!modelPlaced && reticle.visible && gltfModel) {
-            // Place the model
-            model = gltfModel.clone();
-            reticle.matrix.decompose(model.position, model.quaternion, model.scale);
-            scene.add(model);
-
-            // Add a red sphere to indicate the anchor point
-            sphere = new THREE.Mesh(
-                new THREE.SphereGeometry(0.1, 32, 32),  // 0.5m diameter
-                new THREE.MeshBasicMaterial({ color: 0xff0000 })
-            );
-            sphere.position.copy(model.position);  // Place sphere at the model's position
-            scene.add(sphere);
-
-            modelPlaced = true;
-            console.log("Model placed and anchored.");
-
-            // Anchor at the hit-test location
-            const hitTestResults = session.requestHitTestSourceResults();
-
-            if (hitTestResults && hitTestResults.length > 0) {
-                const hit = hitTestResults[0];
-                const anchorPose = hit.getPose(referenceSpace);
-
-                try {
-                    const anchor = await session.requestAnchor(anchorPose.transform.matrix, hit.anchorSpace);
-                    console.log("Anchor created.");
-                } catch (err) {
-                    console.error("Error creating anchor:", err);
+            // Function for hit-test and anchor logic
+            async function hitAndAnchor() {
+                const session = renderer.xr.getSession();
+                const referenceSpace = renderer.xr.getReferenceSpace();
+            
+                if (!modelPlaced && reticle.visible && gltfModel) {
+                    // Place the model
+                    model = gltfModel.clone();
+                    reticle.matrix.decompose(model.position, model.quaternion, model.scale);
+                    scene.add(model);
+            
+                    // Add a red sphere to indicate the anchor point
+                    sphere = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.1, 32, 32),  // 0.5m diameter
+                        new THREE.MeshBasicMaterial({ color: 0xff0000 })
+                    );
+                    sphere.position.copy(model.position);  // Place sphere at the model's position
+                    scene.add(sphere);
+            
+                    modelPlaced = true;
+                    console.log("Model placed and anchored.");
+            
+                    // Hide the reticle once the model is placed
+                    reticle.visible = false;
+            
+                    // Anchor at the hit-test location
+                    const hitTestResults = session.requestHitTestSourceResults();
+            
+                    if (hitTestResults && hitTestResults.length > 0) {
+                        const hit = hitTestResults[0];
+                        const anchorPose = hit.getPose(referenceSpace);
+            
+                        try {
+                            const anchor = await session.requestAnchor(anchorPose.transform.matrix, hit.anchorSpace);
+                            console.log("Anchor created.");
+                        } catch (err) {
+                            console.error("Error creating anchor:", err);
+                        }
+                    }
+                } else if (modelPlaced) {
+                    // Unanchor and remove the model
+                    scene.remove(model);
+                    scene.remove(sphere);
+                    model = null;
+                    sphere = null;
+                    modelPlaced = false;
+                    console.log("Model unanchored and removed.");
+            
+                    // Show the reticle again when the model is unanchored
+                    reticle.visible = true;
                 }
             }
-        } else if (modelPlaced) {
-            // Unanchor and remove the model
-            scene.remove(model);
-            scene.remove(sphere);
-            model = null;
-            sphere = null;
-            modelPlaced = false;
-            console.log("Model unanchored and removed.");
-        }
-    }
 
     // Function to move the model in the specified axis
     function moveModel(axis, value) {
