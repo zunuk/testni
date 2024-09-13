@@ -124,7 +124,7 @@
                         // Adjust light intensities based on the model's size
                         const size = new THREE.Vector3();
                         box.getSize(size);
-                        const intensityScale = Math.max(size.x, size.y, size.z) / 10;
+                        const intensityScale = 10;
                     
                         // Ambient light for overall brightness
                         const ambientLight = new THREE.AmbientLight(0xffffff, 1.5 * intensityScale);
@@ -155,8 +155,16 @@
                             // Optionally, visualize the light with a helper
                             const helper = new THREE.DirectionalLightHelper(directionalLight);
                             scene.add(helper);
-                        }
+                            }
 
+                                // Directional light from below to light the model's underside
+                            const groundDirectionalLight = new THREE.DirectionalLight(0xffffff, 1.5 * intensityScale);
+                            groundDirectionalLight.position.set(center.x, -size.y, center.z); // Position it below the model
+                            groundDirectionalLight.target.position.set(center.x, center.y, center.z); // Target the center of the model
+                            scene.add(groundDirectionalLight);
+                            scene.add(groundDirectionalLight.target); // Important to add the target to the scene
+
+                        
                         // RectAreaLight based on the bounding box (lighting from below)
                         const rectLight = new THREE.RectAreaLight(0xffffff, 1.0 * intensityScale, size.x, size.z);
                         rectLight.position.set(center.x, -size.y / 2, center.z); // Below the model
