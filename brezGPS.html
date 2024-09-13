@@ -100,6 +100,24 @@
 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
+                    // Function to adjust the material of the model to ensure it's light-reactive
+                    function makeMaterialsLightReactive(model) {
+                        model.traverse(function (child) {
+                            if (child.isMesh) {
+                                if (!(child.material instanceof THREE.MeshStandardMaterial)) {
+                                    child.material = new THREE.MeshStandardMaterial({
+                                        color: child.material.color || 0xffffff, // Preserve original color
+                                        metalness: 0.1,  // Adjust metalness for light reflection
+                                        roughness: 0.8,  // Adjust roughness for smoothness
+                                        side: THREE.DoubleSide // Ensure double-sided to prevent black faces
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+
+        
                     // Function to calculate the bounding box of the model and add directional lights based on its orientation
                     function addLightsBasedOnBoundingBox(model) {
                         // Compute the bounding box of the model in world coordinates
@@ -208,26 +226,7 @@
         loader.setDRACOLoader(dracoLoader);
 
 
-        // Function to adjust the material of the model to ensure it's light-reactive
-function makeMaterialsLightReactive(model) {
-    model.traverse(function (child) {
-        if (child.isMesh) {
-            // Check if the mesh has a material
-            if (child.material) {
-                // Convert the material to MeshStandardMaterial if needed
-                if (!(child.material instanceof THREE.MeshStandardMaterial)) {
-                    child.material = new THREE.MeshStandardMaterial({
-                        color: child.material.color || 0xffffff, // Preserve the original color
-                        metalness: 0.1,  // Adjust metalness
-                        roughness: 0.8,  // Adjust roughness
-                        side: THREE.DoubleSide // Ensure it's double-sided to prevent black faces
-                    });
-                }
-            }
-        }
-    });
-}
-
+    
         
         // Load the Draco-compressed GLTF model
         loader.load('https://zunuk.github.io/testni/Finito4.glb', function (gltf) {
@@ -237,6 +236,7 @@ function makeMaterialsLightReactive(model) {
 
         // Adjust materials to be light-reactive
     makeMaterialsLightReactive(gltfModel);
+
             
         // Adjust lights based on the model's bounding box corner points
         addLightsBasedOnBoundingBox(gltfModel);
