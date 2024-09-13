@@ -155,8 +155,8 @@
                             scene.add(directionalLight);
                     
                             // Optionally, visualize the light with a helper
-                            const helper = new THREE.DirectionalLightHelper(directionalLight);
-                            scene.add(helper);
+                            //const helper = new THREE.DirectionalLightHelper(directionalLight);
+                            //scene.add(helper);
                             }
 
                                 // Directional light from below to light the model's underside
@@ -195,7 +195,7 @@
 
         // Reticle for detecting planes
         reticle = new THREE.Mesh(
-            new THREE.RingGeometry(0.075, 0.2, 32).rotateX(-Math.PI / 2),
+            new THREE.RingGeometry(0.075, 0.1, 32).rotateX(-Math.PI / 2),
             new THREE.MeshBasicMaterial({ color: 0x0fff00 })
         );
         reticle.matrixAutoUpdate = false;
