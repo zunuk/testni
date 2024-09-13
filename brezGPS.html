@@ -100,79 +100,69 @@
 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
-        // Function to calculate the bounding box of the model and adjust lights based on its orientation
-        function addLightsBasedOnBoundingBox(model) {
-            // Compute the bounding box of the model in world coordinates
-            const box = new THREE.Box3().setFromObject(model);
-        
-            // Get the 8 corner points of the bounding box
-            const cornerPoints = [
-                new THREE.Vector3(box.min.x, box.min.y, box.min.z), // Bottom-front-left
-                new THREE.Vector3(box.min.x, box.min.y, box.max.z), // Bottom-back-left
-                new THREE.Vector3(box.max.x, box.min.y, box.min.z), // Bottom-front-right
-                new THREE.Vector3(box.max.x, box.min.y, box.max.z), // Bottom-back-right
-                new THREE.Vector3(box.min.x, box.max.y, box.min.z), // Top-front-left
-                new THREE.Vector3(box.min.x, box.max.y, box.max.z), // Top-back-left
-                new THREE.Vector3(box.max.x, box.max.y, box.min.z), // Top-front-right
-                new THREE.Vector3(box.max.x, box.max.y, box.max.z), // Top-back-right
-            ];
-        
-            // Compute the center of the bounding box
-            const center = new THREE.Vector3();
-            box.getCenter(center);
-        
-            // Adjust light intensities based on the model's size
-            const size = new THREE.Vector3();
-            box.getSize(size);
-            const intensityScale = Math.max(size.x, size.y, size.z) / 10;
-        
-            // Ambient light for overall brightness
-            const ambientLight = new THREE.AmbientLight(0xffffff, 1.5 * intensityScale);
-            scene.add(ambientLight);
-        
-            // Hemisphere light: Light from above and below
-            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5 * intensityScale);
-            hemisphereLight.position.set(center.x, size.y * 2, center.z); // Above the model
-            scene.add(hemisphereLight);
-        
-            // Position point lights based on the bounding box corner points
-            const pointLight1 = new THREE.PointLight(0xffffff, 1.5 * intensityScale, 100);
-            pointLight1.position.copy(cornerPoints[4]); // Top-front-left
-            scene.add(pointLight1);
-        
-            const pointLight2 = new THREE.PointLight(0xffffff, 1.5 * intensityScale, 100);
-            pointLight2.position.copy(cornerPoints[5]); // Top-back-left
-            scene.add(pointLight2);
-        
-            const pointLight3 = new THREE.PointLight(0xffffff, 1.5 * intensityScale, 100);
-            pointLight3.position.copy(cornerPoints[6]); // Top-front-right
-            scene.add(pointLight3);
-        
-            const pointLight4 = new THREE.PointLight(0xffffff, 1.5 * intensityScale, 100);
-            pointLight4.position.copy(cornerPoints[7]); // Top-back-right
-            scene.add(pointLight4);
-        
-            // RectAreaLight based on the bounding box
-            const rectLight = new THREE.RectAreaLight(0xffffff, 1.0 * intensityScale, size.x, size.z);
-            rectLight.position.set(center.x, -size.y / 2, center.z); // Below the model
-            rectLight.lookAt(center.x, center.y, center.z); // Point the light toward the center of the model
-            scene.add(rectLight);
-        
-            // Optional: Visualize the lights with helpers
-            const pointLightHelper1 = new THREE.PointLightHelper(pointLight1);
-            scene.add(pointLightHelper1);
-        
-            const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
-            scene.add(pointLightHelper2);
-        
-            const pointLightHelper3 = new THREE.PointLightHelper(pointLight3);
-            scene.add(pointLightHelper3);
-        
-            const pointLightHelper4 = new THREE.PointLightHelper(pointLight4);
-            scene.add(pointLightHelper4);
-       
-        }
-                
+                    // Function to calculate the bounding box of the model and add directional lights based on its orientation
+                    function addLightsBasedOnBoundingBox(model) {
+                        // Compute the bounding box of the model in world coordinates
+                        const box = new THREE.Box3().setFromObject(model);
+                    
+                        // Get the 8 corner points of the bounding box
+                        const cornerPoints = [
+                            new THREE.Vector3(box.min.x, box.min.y, box.min.z), // Bottom-front-left
+                            new THREE.Vector3(box.min.x, box.min.y, box.max.z), // Bottom-back-left
+                            new THREE.Vector3(box.max.x, box.min.y, box.min.z), // Bottom-front-right
+                            new THREE.Vector3(box.max.x, box.min.y, box.max.z), // Bottom-back-right
+                            new THREE.Vector3(box.min.x, box.max.y, box.min.z), // Top-front-left
+                            new THREE.Vector3(box.min.x, box.max.y, box.max.z), // Top-back-left
+                            new THREE.Vector3(box.max.x, box.max.y, box.min.z), // Top-front-right
+                            new THREE.Vector3(box.max.x, box.max.y, box.max.z), // Top-back-right
+                        ];
+                    
+                        // Compute the center of the bounding box
+                        const center = new THREE.Vector3();
+                        box.getCenter(center);
+                    
+                        // Adjust light intensities based on the model's size
+                        const size = new THREE.Vector3();
+                        box.getSize(size);
+                        const intensityScale = Math.max(size.x, size.y, size.z) / 10;
+                    
+                        // Ambient light for overall brightness
+                        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5 * intensityScale);
+                        scene.add(ambientLight);
+                    
+                        // Hemisphere light: Light from above and below
+                        const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5 * intensityScale);
+                        hemisphereLight.position.set(center.x, size.y * 2, center.z); // Above the model
+                        scene.add(hemisphereLight);
+                    
+                        // Add directional lights from the 8 corner points, pointing toward the center
+                        for (let i = 0; i < cornerPoints.length; i++) {
+                            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5 * intensityScale);
+                    
+                            // Set the position of the light to the corner point
+                            directionalLight.position.copy(cornerPoints[i]);
+                    
+                            // Calculate the direction vector: (center - corner point)
+                            const direction = new THREE.Vector3().subVectors(center, cornerPoints[i]).normalize();
+                    
+                            // Set the light's target to the center of the model
+                            directionalLight.target.position.copy(center);
+                            scene.add(directionalLight.target);  // Directional lights need a target in the scene
+                    
+                            // Add the directional light to the scene
+                            scene.add(directionalLight);
+                    
+                            // Optionally, visualize the light with a helper
+                            const helper = new THREE.DirectionalLightHelper(directionalLight);
+                            scene.add(helper);
+                        }
+
+                        // RectAreaLight based on the bounding box (lighting from below)
+                        const rectLight = new THREE.RectAreaLight(0xffffff, 1.0 * intensityScale, size.x, size.z);
+                        rectLight.position.set(center.x, -size.y / 2, center.z); // Below the model
+                        rectLight.lookAt(center.x, center.y, center.z); // Point the light toward the center of the model
+                        scene.add(rectLight);
+                        }    
 
         // Renderer with DOM Overlay support
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
