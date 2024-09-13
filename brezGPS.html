@@ -101,9 +101,28 @@
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
         // Lighting setup
-            const ambientLight = new THREE.AmbientLight(0xffffff, 60.5); // Ambient light to light everything equally
+            const ambientLight = new THREE.AmbientLight(0xffffff, 6000.5); // Ambient light to light everything equally
             scene.add(ambientLight);
+                    // Hemisphere light: simulates light coming from above and below
+            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 3000.5);
+            hemisphereLight.position.set(-15, 30, -10); // Position it above the scene
+            scene.add(hemisphereLight);
             
+            function addRectAreaLightForModel(model) {
+                // Compute the bounding box of the model
+                const box = new THREE.Box3().setFromObject(model);
+            
+                // Get the size of the bounding box
+                const size = new THREE.Vector3();
+                box.getSize(size);
+            
+                // Create a RectAreaLight with dimensions based on the model's bounding box
+                const rectLight = new THREE.RectAreaLight(0xffffff, 3000.5, size.x, size.z); // Size matches the model's projection on the X-Z plane
+                rectLight.position.set(-size.x / 2, 0, -size.z / 2);  // Place it below the model
+                rectLight.lookAt(-size.x / 2, 30, -size.z / 2);  // Orient the light upwards toward the model
+                scene.add(rectLight);
+            
+                            }  // <-- Missing closing bracket   
  
         
 
