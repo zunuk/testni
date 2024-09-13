@@ -199,11 +199,37 @@
         dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/libs/draco/');
         loader.setDRACOLoader(dracoLoader);
 
+
+        // Function to adjust the material of the model to ensure it's light-reactive
+function makeMaterialsLightReactive(model) {
+    model.traverse(function (child) {
+        if (child.isMesh) {
+            // Check if the mesh has a material
+            if (child.material) {
+                // Convert the material to MeshStandardMaterial if needed
+                if (!(child.material instanceof THREE.MeshStandardMaterial)) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: child.material.color || 0xffffff, // Preserve the original color
+                        metalness: 0.1,  // Adjust metalness
+                        roughness: 0.8,  // Adjust roughness
+                        side: THREE.DoubleSide // Ensure it's double-sided to prevent black faces
+                    });
+                }
+            }
+        }
+    });
+}
+
+        
         // Load the Draco-compressed GLTF model
         loader.load('https://zunuk.github.io/testni/Finito4.glb', function (gltf) {
             gltfModel = gltf.scene;
             gltfModel.scale.set(1.0, 1.0, 1.0); // Initial scale
-       
+
+
+        // Adjust materials to be light-reactive
+    makeMaterialsLightReactive(gltfModel);
+            
         // Adjust lights based on the model's bounding box corner points
         addLightsBasedOnBoundingBox(gltfModel);
         
