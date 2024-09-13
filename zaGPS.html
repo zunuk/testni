@@ -89,16 +89,19 @@
                 <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
             
                 <!-- Hemisphere light to simulate sky and ground lighting -->
-                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="0 20 -10"></a-light>
+                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="-10 0 -0"></a-light>
+                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="-10 0 -10"></a-light>
+                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="10 0 -0"></a-light>
+                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="10 0 -10"></a-light>
             
                 <!-- Directional lights from the corner points of the model's bounding box -->
-                <a-light type="directional" color="#FFF" intensity="1.5" position="-100 0 -100" target="#model"></a-light>
-                <a-light type="directional" color="#FFF" intensity="1.5" position="100 0 -100" target="#model"></a-light>
-                <a-light type="directional" color="#FFF" intensity="1.5" position="-100 0 100" target="#model"></a-light>
-                <a-light type="directional" color="#FFF" intensity="1.5" position="100 0 100" target="#model"></a-light>
+                <a-light type="directional" color="#FFF" intensity="1.5" position="-100 0 -100" target="0 30 -10"></a-light>
+                <a-light type="directional" color="#FFF" intensity="1.5" position="100 0 -100" target="0 30 -10"></a-light>
+                <a-light type="directional" color="#FFF" intensity="1.5" position="-100 0 100" target="0 30 -10"></a-light>
+                <a-light type="directional" color="#FFF" intensity="1.5" position="100 0 100" target="0 30 -10"></a-light>
             
                 <!-- Additional directional light to simulate lighting from below -->
-                <a-light type="directional" color="#FFF" intensity="1.5" position="0 -0 -10" target="#model"></a-light>
+                <a-light type="directional" color="#FFF" intensity="1.5" position="0 -0 -10" target="0 30 -10"></a-light>
             
                 <!-- Point light to simulate lighting from below, mimicking a rect area light -->
                 <a-light type="point" color="#FFF" intensity="1.0" position="0 0 -10" distance="50"></a-light>
