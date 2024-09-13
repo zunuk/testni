@@ -101,12 +101,30 @@
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
 
         // Lighting setup
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); // Balanced ambient light
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); // Stronger directional light
-        directionalLight.position.set(10, 20, 10).normalize();
-        scene.add(directionalLight);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 3.5); // Ambient light to light everything equally
+            scene.add(ambientLight);
+            
+            // Hemisphere light: simulates light coming from above and below
+            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 3.5);
+            hemisphereLight.position.set(-15, 20, -10); // Position it above the scene
+            scene.add(hemisphereLight);
+            
+            // Add four point lights to simulate light from all directions
+            const pointLight1 = new THREE.PointLight(0xffffff, 3.5); // Front-left
+            pointLight1.position.set(-10, 10, 10);
+            scene.add(pointLight1);
+            
+            const pointLight2 = new THREE.PointLight(0xffffff, 3.5); // Front-right
+            pointLight2.position.set(10, 10, 10);
+            scene.add(pointLight2);
+            
+            const pointLight3 = new THREE.PointLight(0xffffff, 3.5); // Back-left
+            pointLight3.position.set(-10, 10, -10);
+            scene.add(pointLight3);
+            
+            const pointLight4 = new THREE.PointLight(0xffffff, 3.5); // Back-right
+            pointLight4.position.set(10, 10, -10);
+            scene.add(pointLight4);
 
         // Renderer with DOM Overlay support
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -147,8 +165,7 @@
         loader.load('https://zunuk.github.io/testni/Finito4.glb', function (gltf) {
             gltfModel = gltf.scene;
             gltfModel.scale.set(1.0, 1.0, 1.0); // Initial scale
-            scene.add(gltfModel);
-        }, undefined, function (error) {
+            }, undefined, function (error) {
             console.error('Error loading model:', error);
         });
 
