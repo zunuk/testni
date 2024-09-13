@@ -85,26 +85,20 @@
             visible="true"
         ></a-entity>
 
-                <!-- Ambient light for overall illumination -->
-                <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
-            
-                <!-- Hemisphere light to simulate sky and ground lighting -->
-                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="-10 0 -0"></a-light>
-                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="-10 0 -10"></a-light>
-                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="10 0 -0"></a-light>
-                <a-light type="hemisphere" color="#FFFF" groundColor="#FFF" intensity="1.5" position="10 0 -10"></a-light>
-            
-                <!-- Directional lights from the corner points of the model's bounding box -->
-                <a-light type="directional" color="#FFF" intensity="1.5" position="-100 0 -100" target="0 30 -10"></a-light>
-                <a-light type="directional" color="#FFF" intensity="1.5" position="100 0 -100" target="0 30 -10"></a-light>
-                <a-light type="directional" color="#FFF" intensity="1.5" position="-100 0 100" target="0 30 -10"></a-light>
-                <a-light type="directional" color="#FFF" intensity="1.5" position="100 0 100" target="0 30 -10"></a-light>
-            
-                <!-- Additional directional light to simulate lighting from below -->
-                <a-light type="directional" color="#FFF" intensity="1.5" position="0 -0 -10" target="0 30 -10"></a-light>
-            
-                <!-- Point light to simulate lighting from below, mimicking a rect area light -->
-                <a-light type="point" color="#FFF" intensity="1.0" position="0 0 -10" distance="50"></a-light>
+     <!-- Ambient light for overall illumination -->
+    <a-light type="ambient" color="#FFF" intensity="1.0"></a-light>
+
+    <!-- Hemisphere light for diffuse lighting from above and ground -->
+    <a-light type="hemisphere" color="#FFFFBB" groundColor="#080820" intensity="1.2" position="0 10 0"></a-light>
+
+    <!-- Directional light to mimic sunlight -->
+    <a-light type="directional" color="#FFF" intensity="1.5" position="5 10 -5" target="#model" castShadow="true"></a-light>
+
+    <!-- Directional light to illuminate the model from the opposite side -->
+    <a-light type="directional" color="#FFF" intensity="1.5" position="-5 10 5" target="#model"></a-light>
+
+    <!-- Additional point light from below to brighten the bottom side -->
+    <a-light type="point" color="#FFF" intensity="0.8" position="0 -5 0" distance="50"></a-light>
         
     </a-scene>
 
